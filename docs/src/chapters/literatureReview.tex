@@ -1,44 +1,56 @@
 \chapter{LITERATURE REVIEW}
 
+\section{Website Monitoring and Availability}
 
-WRITING GUIDELINES FOR LITERATURE REVIEW CHAPTER
+Website availability monitoring is critical for modern web infrastructure, with IT downtime costing approximately \$5,600 per minute \cite{gartner2014}. Monitoring systems employ active probing---sending periodic HTTP requests to verify availability by checking response codes and response times \cite{rfc7231}.
 
-The Literature Review critically analyzes existing research, technologies, and solutions related to your project. It is NOT merely a summary of papers but rather a synthesis that compares approaches, identifies gaps, and justifies your project's novelty. This chapter should demonstrate your understanding of the field and position your work within the broader research landscape.
+Patterson et al. \cite{patterson2002} defined uptime as the percentage of time a system remains operational, typically expressed as "nines" (e.g., 99.9\% equals 8.76 hours downtime per year) in Service Level Agreements.
 
-GENERAL ORGANIZATION PRINCIPLES:
+\section{Existing Monitoring Solutions}
+
+\subsection{Commercial Platforms}
+
+Pingdom offers comprehensive monitoring with global probe locations \cite{pingdom2023}. UptimeRobot provides 5-minute monitoring intervals with a freemium model \cite{uptimerobot2023}. Downdetector aggregates user reports rather than active monitoring \cite{downdetector2023}.
+
+\subsection{Open-Source Solutions}
+
+Uptime Kuma is a popular self-hosted solution with Docker deployment \cite{uptimekuma2023}. Nagios and Zabbix provide enterprise-grade capabilities but require significant expertise \cite{nagios2023, zabbix2023}. Prometheus with Blackbox Exporter enables HTTP probing within cloud-native environments \cite{prometheus2023}.
+
+Table \ref{tab:monitoring-comparison} compares key features of existing solutions.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparison of Website Monitoring Solutions}
+    \label{tab:monitoring-comparison}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Solution} & \textbf{Type} & \textbf{Interval} & \textbf{Status Page} & \textbf{Self-Hosted} \\
+        \midrule
+        Pingdom           & Commercial    & 1 min             & Yes                  & No                   \\
+        UptimeRobot       & Commercial    & 5 min             & Yes                  & No                   \\
+        Uptime Kuma       & Open-Source   & 1 min             & Yes                  & Yes                  \\
+        Nagios            & Open-Source   & 1 min             & Limited              & Yes                  \\
+        Our System        & Open-Source   & 5 min             & Yes                  & Yes                  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Technical Approaches}
+
+HTTP monitoring sends requests to URLs and analyzes response status codes, response time, and SSL certificate validity \cite{rfc7231}. ICMP ping provides basic reachability but doesn't verify application functionality \cite{rfc792}. Five-minute intervals balance detection speed with resource consumption \cite{mansmann2007}.
+
+\section{Data Storage}
+
+PostgreSQL handles time-series monitoring data efficiently with temporal queries and aggregations \cite{postgresql2023}. For moderate data volumes, it provides adequate performance with simpler deployment than specialized databases like InfluxDB \cite{influxdb2023}.
+
+\section{Research Gaps}
+
+Existing solutions have limitations for educational institutions:
 \begin{itemize}
-    \item Structure by themes or technologies, NOT paper-by-paper summaries
-    \item Write in reverse chronological order within each theme
-    \item Compare and contrast different approaches using tables
-    \item Identify trends and gaps in existing research
-    \item Build argument for why your work is needed
-    \item Cite comprehensively but critically (15-30 high-quality references)
-    \item Each paragraph should relate reviewed work to YOUR project
+    \item Commercial solutions impose recurring subscription costs
+    \item Enterprise tools (Nagios, Zabbix) require significant expertise
+    \item Cloud-based monitoring cannot detect internal network issues
+    \item Limited customization for institutional requirements
 \end{itemize}
 
-HOW TO WRITE - HARDWARE PROJECTS:
-
-Review existing hardware systems addressing similar problems. Describe their architectures, components, performance characteristics, and limitations. Compare different: Sensor technologies, Microcontroller platforms (Arduino, Raspberry Pi, ESP32, STM32), Communication protocols (UART, I2C, SPI, WiFi, Bluetooth), Power management strategies.
-
-For ML-enhanced hardware: Review edge AI approaches, Model optimization techniques (quantization, pruning), Inference engines (TensorFlow Lite, ONNX Runtime), Hardware accelerators (GPUs, TPUs, Neural Processing Units).
-
-Identify gaps: existing systems too expensive, excessive power consumption, lack functionality, cannot operate in specific environments, fail to leverage modern ML techniques.
-
-Include 15-20 high-quality references from IEEE journals, conferences, and technical sources.
-
-HOW TO WRITE - ML/SOFTWARE PROJECTS:
-
-Organize around key themes: Application domain background, Relevant algorithms or architectures (CNNs, Transformers, ensemble methods), Datasets commonly used, Evaluation methodologies, Deployment considerations.
-
-For ML projects: Review foundational algorithms/architectures. Discuss strengths, weaknesses, computational requirements, and applicability. Compare different approaches (traditional ML vs. deep learning, supervised vs. unsupervised). Use tables to compare model architectures, performance metrics, dataset sizes, and computational costs. Critically evaluate methodologies.
-
-For software projects: Review existing systems, frameworks, or applications. Discuss architectural patterns (MVC, microservices, serverless), technology stacks, scalability approaches, UI paradigms. Compare commercial vs. open-source alternatives.
-
-Identify research gaps: existing models don't generalize to your domain, available software lacks features, current solutions don't scale, insufficient research comparing approaches.
-
-Aim for 20-30 high-quality references from top-tier venues (NeurIPS, ICML, CVPR, ACL, SIGMOD) and industry technical reports.
-
-STRUCTURE SUGGESTIONS:
-section Related Hardware/Software Systems, section Machine Learning Approaches (if applicable), section Datasets and Benchmarks, section Evaluation Methodologies, section Research Gaps and Our Contribution
-
-LaTeX quick refs: Cite with cite key, Use label and reference via Section ref, Use comparison tables with label and reference via Table ref
+Our Uptime Tracker addresses these gaps with a simple, self-hosted solution for institutions like Thapathali Campus.
