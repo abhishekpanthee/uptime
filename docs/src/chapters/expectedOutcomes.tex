@@ -1,185 +1,59 @@
 \chapter{EXPECTED OUTCOMES}
 
-\section{Introduction}
-
-This chapter outlines the anticipated results and deliverables upon successful completion of the Uptime Tracker project. The expected outcomes are derived from the objectives defined in Chapter 1 and the system design presented in Chapter 4.
-
 \section{System Deliverables}
 
-Upon completion, the project will deliver the following tangible outputs:
+Upon completion, the project will deliver:
 
 \subsection{Web Application}
 
-A fully functional web application accessible via modern web browsers with the following capabilities:
-
-\begin{enumerate}
-    \item \textbf{User Management Module}
-    \begin{itemize}
-        \item Secure user registration with email verification
-        \item Login/logout functionality with session management
-        \item Password reset capability
-        \item User profile management
-    \end{itemize}
-    
-    \item \textbf{Website Monitoring Module}
-    \begin{itemize}
-        \item Interface to add, edit, and remove websites from monitoring
-        \item Real-time status display showing current availability
-        \item Response time visualization through interactive charts
-        \item Historical uptime statistics and trends
-    \end{itemize}
-    
-    \item \textbf{Public Status Page}
-    \begin{itemize}
-        \item Publicly accessible page showing status of opted-in websites
-        \item Clean, minimal interface requiring no authentication
-        \item Auto-refresh functionality for live updates
-    \end{itemize}
-\end{enumerate}
+\begin{itemize}
+    \item User registration, authentication, and profile management
+    \item Website monitoring interface with real-time status display
+    \item Response time visualization and historical statistics
+    \item Public status page for opted-in websites
+\end{itemize}
 
 \subsection{Backend Services}
 
-The project will deliver a robust backend system comprising:
-
-\begin{enumerate}
-    \item \textbf{RESTful API} providing endpoints for all application functionality
-    \item \textbf{Monitoring Service} executing automated availability checks every 5 minutes
-    \item \textbf{Data Aggregation Service} computing hourly and daily statistics
-    \item \textbf{Authentication Service} managing JWT-based user sessions
-\end{enumerate}
-
-\subsection{Database System}
-
-A PostgreSQL database storing:
-
 \begin{itemize}
-    \item User account information
-    \item Website registration and ownership records
-    \item Raw ping result data (response time, status, timestamp)
-    \item Computed hourly and daily aggregates
-    \item System configuration parameters
+    \item RESTful API for all application functionality
+    \item Monitoring service with automated 5-minute checks
+    \item Data aggregation for hourly and daily statistics
 \end{itemize}
 
-\section{Expected Functional Outcomes}
+\subsection{Database}
 
-\subsection{Monitoring Accuracy}
+PostgreSQL database storing user accounts, website registrations, ping results, and computed aggregates.
 
-The system is expected to achieve the following monitoring performance:
+\section{Expected Performance}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
-    \caption{Expected Monitoring Performance Metrics}
+    \caption{Expected Metrics}
     \label{tab:expected-metrics}
     \begin{tabular}{lc}
         \toprule
         \textbf{Metric} & \textbf{Expected Value} \\
         \midrule
-        Check Interval Accuracy & $\pm$ 30 seconds of scheduled time \\
-        Response Time Measurement & $\pm$ 10ms variance \\
+        Check Interval Accuracy & $\pm$ 30 seconds \\
         Downtime Detection & Within 5-10 minutes \\
-        Data Storage Reliability & 99.9\% data integrity \\
-        API Response Time & < 200ms for standard queries \\
+        API Response Time & < 200ms \\
+        Concurrent Users & Up to 100 \\
+        Website Capacity & Up to 500 monitors \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\subsection{User Experience}
+\section{Documentation}
 
-The application interface is expected to provide:
-
-\begin{itemize}
-    \item Intuitive navigation requiring minimal learning curve
-    \item Responsive design functioning on desktop, tablet, and mobile devices
-    \item Clear visual indicators for website status (up/down)
-    \item Informative error messages guiding user actions
-    \item Fast page load times (< 2 seconds on standard connections)
-\end{itemize}
-
-\subsection{System Scalability}
-
-The designed architecture should support:
-
-\begin{itemize}
-    \item Up to 100 concurrent users without performance degradation
-    \item Monitoring of up to 500 websites from a single server instance
-    \item Storage of 6 months of historical data per website
-    \item Horizontal scaling capability for future growth
-\end{itemize}
-
-\section{Documentation Deliverables}
-
-The project will produce comprehensive documentation including:
-
-\begin{enumerate}
-    \item \textbf{Technical Documentation}
-    \begin{itemize}
-        \item Database schema documentation with entity relationships
-        \item API endpoint reference with request/response formats
-        \item System architecture diagrams
-        \item Deployment and configuration guide
-    \end{itemize}
-    
-    \item \textbf{User Documentation}
-    \begin{itemize}
-        \item User manual for website owners
-        \item Administrator guide for system management
-        \item Troubleshooting guide for common issues
-    \end{itemize}
-    
-    \item \textbf{Academic Documentation}
-    \begin{itemize}
-        \item Project proposal (current document)
-        \item Final project report with implementation details
-        \item Presentation materials for defense
-    \end{itemize}
-\end{enumerate}
-
-\section{Learning Outcomes}
-
-Through the development of this project, the team expects to gain practical experience in:
-
-\begin{itemize}
-    \item Full-stack web application development using modern technologies
-    \item Database design and optimization for time-series data
-    \item RESTful API design and implementation
-    \item Background service development and scheduling
-    \item User authentication and security best practices
-    \item Version control and collaborative development workflows
-    \item Technical documentation and report writing
-\end{itemize}
-
-\section{Potential Impact}
-
-Upon successful implementation, the Uptime Tracker system is expected to provide:
-
-\begin{enumerate}
-    \item \textbf{For Thapathali Campus:} A functional tool to monitor institutional web services, improving awareness of service availability and enabling proactive maintenance.
-    
-    \item \textbf{For Students and Faculty:} A transparent status page reducing uncertainty about service availability and providing a reference for checking institutional website status.
-    
-    \item \textbf{For System Administrators:} Historical data and analytics to identify patterns, optimize maintenance schedules, and demonstrate service reliability metrics.
-    
-    \item \textbf{As a Reference Implementation:} A documented open-source project that can serve as a learning resource for future DBMS and web development projects.
-\end{enumerate}
+The project will produce: database schema documentation, API reference, deployment guide, user manual, and final project report.
 
 \section{Success Criteria}
 
-The project will be considered successful if it meets the following criteria:
-
-\begin{table}[htbp]
-    \centering
-    \caption{Project Success Criteria}
-    \label{tab:success-criteria}
-    \begin{tabular}{p{4cm}p{8cm}}
-        \toprule
-        \textbf{Criterion} & \textbf{Acceptance Condition} \\
-        \midrule
-        Core Functionality & All primary objectives implemented and operational \\
-        Monitoring Reliability & Automated checks execute without manual intervention \\
-        Data Integrity & No data loss during normal operation \\
-        User Interface & Dashboard displays accurate real-time status \\
-        Public Access & Status page accessible without authentication \\
-        Documentation & Complete technical and user documentation \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+\begin{itemize}
+    \item All primary objectives implemented and operational
+    \item Automated checks execute without manual intervention
+    \item Dashboard displays accurate real-time status
+    \item Public status page accessible without authentication
+    \item Complete technical documentation
+\end{itemize}

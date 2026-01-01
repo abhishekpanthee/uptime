@@ -2,20 +2,20 @@
 
 \section{Introduction}
 
-This chapter presents the architectural design of the Uptime Tracker system, detailing the component structure, data flow, database schema, and development methodology. The architecture follows a three-tier pattern separating presentation, business logic, and data storage concerns, enabling independent development and maintenance of each layer.
+This chapter presents the architectural design of the Uptime Tracker system, detailing the component structure, \gls{dbms} schema, and \gls{api} design. The architecture follows a three-tier pattern separating presentation, business logic, and data storage.
 
 \section{System Architecture Overview}
 
-The Uptime Tracker system employs a modern web application architecture consisting of four primary components:
+The Uptime Tracker employs a modern web architecture with four components:
 
 \begin{enumerate}
-    \item \textbf{Frontend Application:} A Next.js-based web interface providing user interaction through dashboards, status pages, and management forms.
-    \item \textbf{Backend API:} An Elysia.js server handling business logic, authentication, and data operations through RESTful endpoints.
-    \item \textbf{Database:} PostgreSQL database storing user accounts, website registrations, and monitoring data.
-    \item \textbf{Monitoring Service:} A background process executing scheduled availability checks and recording results.
+    \item \textbf{Frontend:} Next.js-based \gls{ui} with dashboards and status pages
+    \item \textbf{Backend \gls{api}:} Elysia.js server with \gls{rest} endpoints
+    \item \textbf{Database:} PostgreSQL storing users and monitoring data
+    \item \textbf{Monitoring Service:} Background process executing \gls{http} checks
 \end{enumerate}
 
-Figure \ref{fig:system-architecture} illustrates the high-level system architecture and component interactions.
+Figure \ref{fig:system-architecture} illustrates the system architecture.
 
 \begin{figure}[htbp]
     \centering
@@ -73,51 +73,7 @@ The technology stack for this project has been selected based on modern best pra
     \end{tabular}
 \end{table}
 
-\subsection{Runtime Environment: Bun}
-
-Bun serves as the JavaScript/TypeScript runtime for both frontend and backend applications. Key characteristics include:
-
-\begin{itemize}
-    \item Native TypeScript support without separate compilation step
-    \item Significantly faster package installation compared to npm
-    \item Built-in bundler and test runner
-    \item Drop-in compatibility with most Node.js packages
-    \item Optimized performance for web server workloads
-\end{itemize}
-
-\subsection{Frontend: Next.js}
-
-Next.js provides the foundation for the user interface with the following features utilized:
-
-\begin{itemize}
-    \item \textbf{App Router:} File-based routing with layouts and nested routes
-    \item \textbf{Server Components:} Reduced client-side JavaScript through server rendering
-    \item \textbf{API Routes:} Backend-for-frontend patterns when needed
-    \item \textbf{Built-in Optimization:} Automatic code splitting and image optimization
-\end{itemize}
-
-\subsection{Backend: Elysia.js}
-
-Elysia.js handles API requests with these capabilities:
-
-\begin{itemize}
-    \item \textbf{Type Safety:} End-to-end TypeScript inference from route definitions
-    \item \textbf{Validation:} Built-in request validation using TypeBox schemas
-    \item \textbf{Middleware:} Plugin system for authentication, logging, and CORS
-    \item \textbf{Performance:} Optimized for Bun runtime with minimal overhead
-\end{itemize}
-
-\subsection{Database: PostgreSQL}
-
-PostgreSQL provides reliable data persistence with:
-
-\begin{itemize}
-    \item ACID compliance for data integrity
-    \item Efficient temporal queries for time-series analysis
-    \item Window functions for aggregation calculations
-    \item JSON support for flexible data storage when needed
-    \item Mature ecosystem with extensive tooling
-\end{itemize}
+Key technology features: \textbf{Bun} provides native TypeScript support with faster performance; \textbf{Next.js} offers server-side rendering and file-based routing; \textbf{Elysia.js} provides type-safe API development; \textbf{PostgreSQL} ensures ACID compliance with efficient temporal queries.
 
 \section{Database Design}
 
@@ -127,31 +83,7 @@ The database schema consists of seven primary tables managing users, authenticat
 
 \begin{figure}[htbp]
     \centering
-    \resizebox{0.95\textwidth}{!}{%
-    \begin{tikzpicture}[
-        entity/.style={rectangle, draw, minimum width=2cm, minimum height=1.8cm, align=center, fill=blue!15, font=\small},
-        arrow/.style={->, >=stealth, thick}
-    ]
-        % Row 1
-        \node[entity] (analytics) at (0,0) {\textbf{analytics}\\\footnotesize id (PK)\\website\_url (FK)\\ping5\\checked\_at};
-        \node[entity] (ownership) at (4,0) {\textbf{ownership}\\\footnotesize website\_url (PK)\\owner\_email (FK)\\is\_public};
-        \node[entity] (users) at (8,0) {\textbf{users}\\\footnotesize id (PK)\\name\\email\\password};
-        \node[entity] (pwdreset) at (12,0) {\textbf{password\_reset}\\\footnotesize id (PK)\\user\_id (FK)\\token\\expires\_at};
-        
-        % Row 2
-        \node[entity] (avgday) at (0,-3.5) {\textbf{average\_day}\\\footnotesize id (PK)\\website\_url (FK)\\avg\\checked\_at};
-        \node[entity] (avghr) at (4,-3.5) {\textbf{average\_hr}\\\footnotesize id (PK)\\website\_url (FK)\\avg\\checked\_at};
-        \node[entity] (refresh) at (8,-3.5) {\textbf{refresh\_tokens}\\\footnotesize id (PK)\\user\_id (FK)\\token\\expires\_at};
-        
-        % Relations
-        \draw[arrow] (ownership) -- (analytics);
-        \draw[arrow] (ownership) -- (avgday);
-        \draw[arrow] (ownership) -- (avghr);
-        \draw[arrow] (users) -- (ownership);
-        \draw[arrow] (users) -- (refresh);
-        \draw[arrow] (users) -- (pwdreset);
-    \end{tikzpicture}%
-    }
+    \includegraphics[width=0.95\textwidth]{src/images/erd.jpeg}
     \caption{Database Entity Relationship Diagram}
     \label{fig:er-diagram}
 \end{figure}
@@ -170,11 +102,11 @@ The users table stores account credentials and profile information:
         \toprule
         \textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
         \midrule
-        id & INTEGER & PRIMARY KEY & Auto-incrementing identifier \\
-        name & VARCHAR(50) & NOT NULL & User display name \\
-        email & VARCHAR(254) & UNIQUE, NOT NULL & User email address \\
-        password & VARCHAR(30) & NULL & User password \\
-        created\_at & TIMESTAMP & DEFAULT NOW() & Account creation time \\
+        id & INT & PRIMARY KEY, NOT NULL & Auto-incrementing identifier \\
+        name & VARCHAR(38) & NOT NULL & User display name \\
+        email & VARCHAR(254) & NOT NULL & User email address \\
+        password & VARCHAR(255) & NOT NULL & Hashed user password \\
+        created\_at & TIMESTAMP & NOT NULL & Account creation time \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -192,8 +124,8 @@ The ownership table links users to their monitored websites:
         \textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
         \midrule
         website\_url & VARCHAR(254) & PRIMARY KEY & Website URL to monitor \\
-        owner\_email & VARCHAR(254) & FOREIGN KEY & Reference to users email \\
-        is\_public & BOOLEAN & DEFAULT TRUE & Public visibility flag \\
+        owner\_id & INT & NOT NULL & Reference to users.id \\
+        is\_public & BOOLEAN & NOT NULL & Public visibility flag \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -230,10 +162,11 @@ Stores hourly aggregated statistics:
         \toprule
         \textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
         \midrule
-        id & INTEGER & PRIMARY KEY & Auto-incrementing identifier \\
-        website\_url & VARCHAR(254) & FOREIGN KEY, NOT NULL & Reference to ownership \\
-        avg & INTEGER & NULL & Average response time \\
-        checked\_at & TIMESTAMP & DEFAULT NOW() & Aggregation timestamp \\
+        website\_url & VARCHAR(254) & PRIMARY KEY, NOT NULL & Reference to ownership \\
+        hour\_id & VARCHAR(10) & PRIMARY KEY, NOT NULL & Hour identifier \\
+        avg & INT & NOT NULL & Average response time \\
+        sample\_count & INT & NOT NULL & Number of samples \\
+        checked\_at & TIMESTAMP & NOT NULL & Aggregation timestamp \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -250,31 +183,32 @@ Stores daily aggregated statistics:
         \toprule
         \textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
         \midrule
-        id & INTEGER & PRIMARY KEY & Auto-incrementing identifier \\
-        website\_url & VARCHAR(254) & FOREIGN KEY, NOT NULL & Reference to ownership \\
-        avg & INTEGER & NULL & Daily average response time \\
-        checked\_at & TIMESTAMP & DEFAULT NOW() & Aggregation timestamp \\
+        website\_url & VARCHAR(254) & PRIMARY KEY, NOT NULL & Reference to ownership \\
+        day\_id & VARCHAR(8) & PRIMARY KEY, NOT NULL & Day identifier \\
+        avg & INT & NOT NULL & Daily average response time \\
+        sample\_count & INT & NOT NULL & Number of samples \\
+        checked\_at & TIMESTAMP & NOT NULL & Aggregation timestamp \\
         \bottomrule
     \end{tabular}
 \end{table}
 
 \subsubsection{Refresh Tokens Table}
 
-Stores JWT refresh tokens for authentication:
+Stores JWT refresh tokens for user authentication sessions:
 
 \begin{table}[H]
     \centering
     \caption{Refresh Tokens Table Schema}
-    \label{tab:refresh-schema}
+    \label{tab:refresh-tokens-schema}
     \begin{tabular}{llll}
         \toprule
         \textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
         \midrule
-        id & INTEGER & PRIMARY KEY & Auto-incrementing identifier \\
-        user\_id & INTEGER & FOREIGN KEY, NOT NULL & Reference to users \\
-        token & VARCHAR(500) & NOT NULL & Refresh token string \\
+        id & INT & PRIMARY KEY & Auto-incrementing identifier \\
+        user\_id & INT & NOT NULL & Reference to users.id \\
+        token & VARCHAR(380) & NOT NULL & JWT refresh token \\
         expires\_at & TIMESTAMP & NOT NULL & Token expiration time \\
-        created\_at & TIMESTAMP & DEFAULT NOW() & Token creation time \\
+        created\_at & TIMESTAMP & NOT NULL & Token creation time \\
         revoked\_at & TIMESTAMP & NULL & Token revocation time \\
         \bottomrule
     \end{tabular}
@@ -282,22 +216,22 @@ Stores JWT refresh tokens for authentication:
 
 \subsubsection{Password Reset Tokens Table}
 
-Stores password reset tokens for account recovery:
+Stores tokens for password reset functionality:
 
 \begin{table}[H]
     \centering
     \caption{Password Reset Tokens Table Schema}
-    \label{tab:pwdreset-schema}
+    \label{tab:pwreset-tokens-schema}
     \begin{tabular}{llll}
         \toprule
         \textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
         \midrule
-        id & INTEGER & PRIMARY KEY & Auto-incrementing identifier \\
-        user\_id & INTEGER & FOREIGN KEY, NOT NULL & Reference to users \\
-        token & VARCHAR(255) & NOT NULL & Reset token string \\
+        id & INT & PRIMARY KEY & Auto-incrementing identifier \\
+        user\_id & INT & NOT NULL & Reference to users.id \\
+        token & VARCHAR(255) & NOT NULL & Password reset token \\
         expires\_at & TIMESTAMP & NOT NULL & Token expiration time \\
-        created\_at & TIMESTAMP & DEFAULT NOW() & Token creation time \\
-        used\_at & TIMESTAMP & NULL & Token usage time \\
+        created\_at & TIMESTAMP & NOT NULL & Token creation time \\
+        used\_at & TIMESTAMP & NULL & Token usage timestamp \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -330,150 +264,18 @@ The backend will expose RESTful API endpoints organized by resource type. Table 
     \end{tabular}
 \end{table}
 
-\section{Monitoring Service Design}
+\section{Monitoring Service}
 
-\subsection{Check Execution Flow}
-
-The monitoring service will operate as a background process executing the following workflow:
-
-\begin{enumerate}
-    \item \textbf{Schedule Trigger:} A scheduler triggers checks every 5 minutes (configurable via cron or interval timer).
-    \item \textbf{URL Retrieval:} The service queries all registered URLs from the ownership table.
-    \item \textbf{Parallel Execution:} HTTP requests are sent to all URLs concurrently with connection and response timeouts.
-    \item \textbf{Result Recording:} For each URL, the service records response time (or null for failures) and status in the analytics table.
-    \item \textbf{Aggregation Update:} After recording raw results, the service updates hourly aggregates as needed.
-\end{enumerate}
-
-Figure \ref{fig:monitoring-flow} illustrates the monitoring service workflow.
-
-\begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}[
-        node distance=1.5cm,
-        box/.style={rectangle, draw, minimum width=2.8cm, minimum height=0.8cm, align=center, fill=blue!10},
-        decision/.style={diamond, draw, aspect=2, fill=yellow!20, minimum width=2cm},
-        arrow/.style={->, >=stealth, thick}
-    ]
-        \node[box] (start) {Scheduler\\Triggers};
-        \node[box, right=of start] (fetch) {Fetch URLs\\from DB};
-        \node[box, right=of fetch] (ping) {Send HTTP\\Requests};
-        \node[box, below=of ping] (record) {Record\\Results};
-        \node[box, left=of record] (aggregate) {Update\\Aggregates};
-        \node[box, left=of aggregate] (wait) {Wait 5\\Minutes};
-        
-        \draw[arrow] (start) -- (fetch);
-        \draw[arrow] (fetch) -- (ping);
-        \draw[arrow] (ping) -- (record);
-        \draw[arrow] (record) -- (aggregate);
-        \draw[arrow] (aggregate) -- (wait);
-        \draw[arrow] (wait) -- (start);
-    \end{tikzpicture}
-    \caption{Monitoring Service Workflow}
-    \label{fig:monitoring-flow}
-\end{figure}
+The monitoring service executes: (1) scheduler triggers checks every 5 minutes; (2) retrieves URLs from ownership table; (3) sends parallel \gls{http} requests; (4) records response times in analytics table; (5) updates hourly aggregates.
 
 \section{User Interface Design}
 
-\subsection{Component Structure}
-
-The frontend follows a component-based architecture with these primary views:
-
-\begin{itemize}
-    \item \textbf{Landing Page:} Public introduction and login/register options
-    \item \textbf{Dashboard:} Overview of all user's monitored websites with status indicators
-    \item \textbf{Website Detail:} Historical charts and statistics for individual websites
-    \item \textbf{Add Website:} Form for registering new websites to monitor
-    \item \textbf{Public Status Page:} Grid showing all public website statuses
-    \item \textbf{Settings:} User profile and account management
-\end{itemize}
-
-\subsection{Dashboard Layout}
-
-The dashboard will display website cards in a responsive grid, each card showing:
-\begin{itemize}
-    \item Website URL and friendly name
-    \item Current status indicator (green/red/gray)
-    \item Latest response time
-    \item 24-hour uptime percentage
-    \item Sparkline chart of recent response times
-\end{itemize}
-
-Figure \ref{fig:ui-mockup} shows the proposed dashboard interface wireframe.
-
-\begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}[
-        box/.style={rectangle, draw, minimum height=0.8cm, align=center},
-        card/.style={rectangle, draw, minimum width=3cm, minimum height=2cm, align=center, fill=gray!10}
-    ]
-        % Header
-        \draw[fill=blue!20] (0,0) rectangle (12,1);
-        \node at (1.5,0.5) {\textbf{Logo}};
-        \node at (6,0.5) {Dashboard};
-        \node at (10.5,0.5) {Logout};
-        
-        % Sidebar
-        \draw[fill=gray!10] (0,-5) rectangle (2,0);
-        \node at (1,-0.5) {\footnotesize Dashboard};
-        \node at (1,-1.2) {\footnotesize Websites};
-        \node at (1,-1.9) {\footnotesize Settings};
-        
-        % Content cards
-        \node[card, fill=green!10] at (4,-1.5) {\textbf{Site A}\\\textcolor{green}{UP}\\45ms};
-        \node[card, fill=green!10] at (7.5,-1.5) {\textbf{Site B}\\\textcolor{green}{UP}\\120ms};
-        \node[card, fill=red!10] at (11,-1.5) {\textbf{Site C}\\\textcolor{red}{DOWN}\\---};
-        
-        % Stats row
-        \draw (2.5,-3) rectangle (11.5,-4.5);
-        \node at (7,-3.4) {\footnotesize Response Time Trend Graph};
-        \node at (7,-4.1) {\footnotesize [Chart Placeholder]};
-    \end{tikzpicture}
-    \caption{Dashboard Interface Wireframe}
-    \label{fig:ui-mockup}
-\end{figure}
+The frontend uses a component-based architecture with: Landing Page, Dashboard (website status grid), Website Detail (historical charts), Add Website form, Public Status Page, and Settings. The dashboard displays website cards with URL, status indicator, response time, and uptime percentage.
 
 \section{Development Methodology}
 
-\subsection{Agile Approach}
+The project follows iterative development with incremental features, regular integration, and prioritized backlog. Development phases: (1) Foundation---setup and authentication; (2) Core Features---monitoring service; (3) Interface---dashboard and visualizations; (4) Polish---testing and error handling; (5) Documentation.
 
-The project follows an iterative development methodology with these characteristics:
+\section{Deployment}
 
-\begin{itemize}
-    \item \textbf{Incremental Development:} Features are implemented in small, functional increments
-    \item \textbf{Regular Integration:} Code is frequently committed and integrated to identify issues early
-    \item \textbf{Prioritized Backlog:} Features are prioritized by core functionality first, enhancements later
-    \item \textbf{Testing Integration:} Each feature includes corresponding tests before moving to next
-\end{itemize}
-
-\subsection{Development Phases}
-
-\begin{enumerate}
-    \item \textbf{Phase 1 - Foundation:} Project setup, database schema, basic authentication
-    \item \textbf{Phase 2 - Core Features:} Website registration, monitoring service, data recording
-    \item \textbf{Phase 3 - Interface:} Dashboard implementation, status displays, visualizations
-    \item \textbf{Phase 4 - Polish:} Public status pages, aggregation, error handling, testing
-    \item \textbf{Phase 5 - Documentation:} Code documentation, user guide, deployment instructions
-\end{enumerate}
-
-\subsection{Version Control}
-
-Git will be used for version control with the following practices:
-\begin{itemize}
-    \item Feature branches for isolated development
-    \item Descriptive commit messages documenting changes
-    \item Regular commits maintaining manageable change sets
-    \item Main branch always in deployable state
-\end{itemize}
-
-\section{Deployment Architecture}
-
-The system is designed for deployment on standard infrastructure:
-
-\begin{itemize}
-    \item \textbf{Single Server:} All components can run on one server for simple deployments
-    \item \textbf{Separate Services:} Frontend and backend can be deployed separately for scaling
-    \item \textbf{Database Hosting:} PostgreSQL can be self-hosted or use managed services
-    \item \textbf{Process Management:} Background monitoring service managed via process managers
-\end{itemize}
-
-Minimum production requirements include a Linux server with Bun installed, PostgreSQL database access, and domain configuration for HTTPS termination.
+The system supports single-server deployment with all components, or separate services for scaling. Requirements: Linux server with Bun, PostgreSQL access, and HTTPS configuration.

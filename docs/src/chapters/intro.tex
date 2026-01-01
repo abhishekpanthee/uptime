@@ -2,93 +2,53 @@
 
 \section{Background}
 
-In the modern digital landscape, website availability has become a critical metric for organizations across all sectors. According to industry research, website downtime costs businesses an average of \$5,600 per minute, with major enterprises potentially losing hundreds of thousands of dollars per hour of unavailability. Beyond financial implications, service disruptions erode user trust, damage brand reputation, and can lead to permanent customer loss in competitive markets.
+Website availability is critical for organizations, with downtime costing businesses an average of \$5,600 per minute. Educational institutions like Thapathali Campus depend on web-based systems for student information, examination portals, and learning platforms. When these services experience downtime, users lack visibility into service status.
 
-Educational institutions have increasingly digitized their operations, relying on web-based systems for student information management, examination portals, library services, online learning platforms, and administrative functions. Thapathali Campus, like many academic institutions, operates multiple web services that students and faculty depend upon daily. When these services experience downtime, it affects academic activities, access to learning resources, and administrative processes. However, users often lack visibility into whether a service is experiencing issues, leading to repeated access attempts and frustration.
-
-Website monitoring systems address this challenge by continuously checking service availability and providing real-time status information. Commercial solutions like Pingdom and UptimeRobot offer comprehensive monitoring features but require recurring subscription costs. Open-source alternatives like Uptime Kuma provide self-hosted options but may require technical expertise for deployment and maintenance. Platforms such as status.tcioe.edu.np demonstrate the value of institutional status pages, while crowd-sourced services like Downdetector aggregate user reports to identify widespread outages.
-
-The need for an accessible, customizable, and institutionally-controlled monitoring solution motivates the development of the Uptime Tracker system. This project aims to create a web application that enables automated website monitoring, historical data analysis, and public status page generation using modern web technologies.
+Commercial monitoring solutions require recurring costs, while open-source alternatives need technical expertise. The Uptime Tracker project aims to create an accessible web application for automated website monitoring using \gls{http}/\gls{https} protocols, historical analysis with \gls{sql} database, and public status pages built with modern \gls{api} architecture.
 
 \section{Problem Statement}
 
-Despite the critical importance of web service availability, many institutions including Thapathali Campus lack a centralized system to monitor and communicate the status of their digital services. This absence creates several challenges:
-
+Many institutions lack centralized systems to monitor web service status. Key challenges include:
 \begin{itemize}
-    \item \textbf{Lack of proactive monitoring:} Without automated checks, downtime often goes undetected until users report issues, delaying response and extending service disruption periods.
-    \item \textbf{No historical visibility:} System administrators lack data on uptime patterns, peak failure times, and response time trends, making it difficult to identify recurring issues or measure service improvements.
-    \item \textbf{User uncertainty:} When accessing a slow or unresponsive website, users cannot determine whether the issue is with the service, their network connection, or a temporary glitch, leading to frustration and repeated access attempts.
-    \item \textbf{No accountability metrics:} Without uptime records, institutions cannot measure service level compliance or demonstrate reliability improvements over time.
-    \item \textbf{Decentralized information:} Status updates, when provided, are often scattered across social media, emails, or word-of-mouth, lacking a single authoritative source.
+    \item \textbf{Lack of proactive monitoring:} Downtime goes undetected until users report issues
+    \item \textbf{No historical visibility:} Administrators lack data on uptime patterns and trends
+    \item \textbf{User uncertainty:} Users cannot determine if issues are service-related or local
+    \item \textbf{Decentralized information:} No single authoritative status source exists
 \end{itemize}
-
-These challenges highlight the need for an integrated monitoring platform that provides automated availability checks, maintains historical records, and offers a public-facing status interface for transparency.
 
 \section{Objectives}
 
-The Uptime Tracker project aims to develop a comprehensive website monitoring system with the following objectives:
-
 \subsection{Primary Objectives}
 \begin{enumerate}
-    \item Design and implement a web application that enables users to register websites for automated uptime monitoring.
-    \item Develop a backend service that performs HTTP/HTTPS availability checks at regular 5-minute intervals and records response times.
-    \item Create a PostgreSQL database schema to store ping results, calculate hourly and daily averages, and maintain historical analytics data.
-    \item Build an interactive dashboard displaying real-time website status, response time graphs, and uptime statistics.
-    \item Implement user authentication and authorization to manage website ownership and visibility settings.
+    \item Design a web application for automated uptime monitoring using \gls{rest} \gls{api}
+    \item Develop backend service performing \gls{http}/\gls{https} checks at 5-minute intervals
+    \item Create \gls{dbms} schema using PostgreSQL for analytics data
+    \item Build interactive dashboard with real-time status and \gls{ui} visualizations
+    \item Implement user authentication with \gls{jwt} tokens
 \end{enumerate}
 
 \subsection{Secondary Objectives}
 \begin{enumerate}
-    \item Provide public status pages that allow anyone to view the availability of registered websites.
-    \item Enable website owners to control whether their monitoring data is publicly visible or private.
-    \item Generate aggregate statistics including average response times, uptime percentages, and trend analysis.
-    \item Ensure the system is deployable on standard infrastructure without requiring specialized hosting or expensive resources.
+    \item Provide public status pages for registered websites
+    \item Enable privacy controls for monitoring data visibility
+    \item Generate aggregate statistics and trend analysis
 \end{enumerate}
 
 \section{Scope and Limitations}
 
 \subsection{Scope}
 
-The Uptime Tracker system encompasses the following features and components:
-
-\begin{itemize}
-    \item \textbf{User Management:} Registration, authentication, and profile management for website owners.
-    \item \textbf{Website Registration:} Interface for adding, editing, and removing websites from monitoring.
-    \item \textbf{Automated Monitoring:} Background service performing HTTP/HTTPS checks every 5 minutes.
-    \item \textbf{Data Storage:} PostgreSQL database storing raw ping results, hourly aggregates, and daily summaries.
-    \item \textbf{Analytics Dashboard:} Interactive visualizations showing uptime history, response time trends, and current status.
-    \item \textbf{Public Status Pages:} Publicly accessible pages displaying real-time status of opted-in websites.
-    \item \textbf{Privacy Controls:} Options for website owners to make their monitoring data public or private.
-    \item \textbf{Technology Stack:} Implementation using Bun runtime, Next.js frontend, Elysia.js backend API, and PostgreSQL database.
-\end{itemize}
+The system includes: user management with authentication; website registration interface; automated HTTP/HTTPS monitoring every 5 minutes; PostgreSQL database for ping results and aggregates; analytics dashboard with visualizations; and public status pages with privacy controls.
 
 \subsection{Limitations}
 
-The current version of the system operates within the following constraints:
-
 \begin{itemize}
-    \item \textbf{Protocol Support:} Monitoring is limited to HTTP and HTTPS protocols. Other protocols such as FTP, SMTP, or custom TCP services are not supported.
-    \item \textbf{Check Frequency:} The 5-minute monitoring interval represents a balance between detection speed and server resource consumption. Shorter intervals would increase database size and processing load.
-    \item \textbf{Geographic Scope:} Availability checks originate from a single server location, so regional connectivity issues may not be detected if the monitoring server can reach the target.
-    \item \textbf{Functionality Depth:} The system verifies that websites respond to HTTP requests but does not test specific application functionality, form submissions, or dynamic content rendering.
-    \item \textbf{Alerting:} The initial version does not include email, SMS, or push notification alerts for downtime events.
-    \item \textbf{Performance Metrics:} Detailed metrics such as page load time, DNS resolution time, and SSL handshake duration are not captured in the current implementation.
+    \item Limited to HTTP/HTTPS protocols only
+    \item 5-minute check intervals (balance of speed vs. resources)
+    \item Single-location monitoring
+    \item No email/SMS alerting in initial version
 \end{itemize}
 
 \section{Report Organization}
 
-This proposal report is organized into the following chapters:
-
-\begin{itemize}
-    \item \textbf{Chapter 2: Literature Review} examines existing website monitoring solutions, technical approaches, and identifies gaps that motivate this project.
-    \item \textbf{Chapter 3: Requirements Analysis} defines functional and non-functional requirements along with system specifications.
-    \item \textbf{Chapter 4: System Architecture and Methodology} describes the technical design, database schema, and development approach.
-    \item \textbf{Chapter 5: Expected Outcomes} outlines the anticipated deliverables and success criteria for the project.
-    \item \textbf{Chapter 6: Conclusion} summarizes the proposal and assesses project feasibility.
-\end{itemize}
-
-Additionally, the appendices include:
-\begin{itemize}
-    \item \textbf{Appendix A: Project Budget} provides a detailed cost estimation for the project.
-    \item \textbf{Appendix B: Project Timeline} presents the Gantt chart and milestone schedule.
-\end{itemize}
+This proposal includes: Chapter 2 (Literature Review), Chapter 3 (Requirements Analysis), Chapter 4 (System Architecture), Chapter 5 (Expected Outcomes), Chapter 6 (Conclusion), and appendices for Budget and Timeline.

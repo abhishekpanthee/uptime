@@ -2,54 +2,21 @@
 
 \section{Summary}
 
-This proposal presents the Uptime Tracker project, a web-based monitoring system designed to track website availability, measure response times, and provide analytics through an intuitive dashboard. The project addresses a practical need within educational institutions and organizations for transparent service status monitoring without the recurring costs associated with commercial solutions.
-
-The proposed system employs a modern three-tier architecture with a Next.js frontend, Elysia.js backend API, and PostgreSQL database, all running on the Bun JavaScript runtime. This technology stack demonstrates contemporary full-stack development practices while maintaining simplicity suitable for deployment on standard infrastructure.
+This proposal presents the Uptime Tracker, a web-based monitoring system for tracking website availability and response times. The system uses Next.js frontend, Elysia.js backend, and PostgreSQL database on Bun runtime.
 
 \section{Expected Contributions}
 
-Upon successful completion, the project is expected to deliver:
+The project will deliver: a functional web application with 5-minute monitoring intervals, PostgreSQL database for analytics, interactive dashboard with status visualization, public status pages, and complete documentation.
 
-\begin{enumerate}
-    \item A functional web application enabling automated website monitoring with 5-minute check intervals
-    \item A comprehensive database system storing raw ping results, hourly aggregates, and daily statistics
-    \item An interactive dashboard displaying real-time website status and historical trends
-    \item Public status pages allowing transparent service health communication
-    \item Complete technical documentation including database schema, API reference, and deployment guide
-\end{enumerate}
-
-\section{Feasibility Assessment}
-
-The project is considered feasible based on the following factors:
+\section{Feasibility}
 
 \begin{itemize}
-    \item \textbf{Technical Feasibility:} All proposed technologies are well-documented, actively maintained, and have been successfully used in similar applications. The development team has prior experience with JavaScript/TypeScript web development.
-    
-    \item \textbf{Time Feasibility:} The 3-month timeline allows adequate time for design, development, testing, and documentation phases with buffer time for unexpected challenges.
-    
-    \item \textbf{Resource Feasibility:} The project requires minimal financial investment as all development tools are open-source. Free-tier cloud services can support initial deployment.
-    
-    \item \textbf{Scope Appropriateness:} The defined scope is realistic for a DBMS academic project, focusing on core monitoring functionality without overambitious feature expansion.
+    \item \textbf{Technical:} All technologies are well-documented and actively maintained
+    \item \textbf{Time:} 3-month timeline with buffer for challenges
+    \item \textbf{Resource:} Open-source tools with free-tier cloud options
+    \item \textbf{Scope:} Realistic for a DBMS academic project
 \end{itemize}
-
-\section{Potential Challenges}
-
-The following challenges are anticipated and will be addressed during development:
-
-\begin{enumerate}
-    \item \textbf{Reliable Scheduling:} Ensuring the monitoring service executes checks consistently requires careful implementation of the scheduling mechanism and error handling.
-    
-    \item \textbf{Database Optimization:} As monitoring data accumulates, query performance may degrade. Proper indexing and data archival strategies will be implemented.
-    
-    \item \textbf{Authentication Security:} Implementing secure user authentication requires careful attention to password hashing, token management, and session handling.
-    
-    \item \textbf{Real-time Updates:} Displaying live status updates on the dashboard without excessive server load requires efficient data fetching strategies.
-\end{enumerate}
 
 \section{Conclusion}
 
-The Uptime Tracker project represents a practical application of database management concepts combined with modern web development practices. By developing this system, the team will gain hands-on experience with full-stack development, database design, API implementation, and background service development.
-
-The proposed system fills a genuine need for accessible website monitoring within educational and organizational contexts. Upon completion, the Uptime Tracker will provide Thapathali Campus with a tool for monitoring institutional web services while serving as a reference implementation for future academic projects.
-
-The project team is confident in the successful completion of this project within the proposed timeline and budget, delivering a functional, documented, and deployable website monitoring system.
+The Uptime Tracker represents a practical application of database management combined with modern web development. The project team is confident in successful completion within the proposed timeline, delivering a functional website monitoring system for Thapathali Campus.

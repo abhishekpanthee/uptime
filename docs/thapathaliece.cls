@@ -203,6 +203,7 @@
 \renewcommand*{\subsubsectionformat}{\thesubsubsection\autodot\enskip}
 
 % Section spacing
+\RedeclareSectionCommand[beforeskip=1.5ex plus 0.5ex minus .2ex, afterskip=1.5ex plus .2ex]{chapter}
 \RedeclareSectionCommand[beforeskip=3.5ex plus 1ex minus .2ex, afterskip=2.3ex plus .2ex]{section}
 \RedeclareSectionCommand[beforeskip=3.25ex plus 1ex minus .2ex, afterskip=1.5ex plus .2ex]{subsection}
 \RedeclareSectionCommand[beforeskip=3.25ex plus 1ex minus .2ex, afterskip=1.5ex plus .2ex]{subsubsection}
