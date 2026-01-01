@@ -1,0 +1,75 @@
+\documentclass[12pt]{thapathaliece}
+
+\input{vars.tex}
+
+% Ensure math notation commands are available
+\providecommand{\set}[1]{\mathcal{#1}}
+\providecommand{\vect}[1]{\mathbf{#1}}
+\providecommand{\matr}[1]{\mathbf{#1}}
+
+% Optional helper packages used by some guideline chapters
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}
+
+% Glossary entries (define once, print later)
+\input{src/frontmatter/abbreviations}
+\input{src/frontmatter/symbols}
+
+
+
+\begin{document}
+% =====================
+% FRONTMATTER
+% =====================
+
+\input{src/frontmatter/_coverWithSupervisors}
+\input{src/frontmatter/_coverBase}
+
+\clearpage
+\pagenumbering{roman}
+
+\input{src/frontmatter/certificate}
+\input{src/frontmatter/declar}
+\input{src/frontmatter/copyright}
+
+
+
+% Standard frontmatter
+\input{src/frontmatter/acknow}
+\input{src/frontmatter/abstract}
+\input{src/frontmatter/toc}
+
+% =====================
+% MAINMATTER
+% =====================
+\clearpage
+\pagenumbering{arabic}
+
+\input{src/chapters/intro}
+\input{src/chapters/literatureReview}
+\input{src/chapters/requirements}
+\input{src/chapters/systemArchitectureAndMethodology}
+\input{src/chapters/implementationDetails}
+\input{src/chapters/resultAndAnalysis}
+\input{src/chapters/remainingTasks}
+\input{src/chapters/conclusion}
+
+% =====================
+% BACKMATTER / APPENDICES
+% =====================
+\clearpage
+\appendix
+\addcontentsline{toc}{chapter}{APPENDICES}
+\input{src/backmatter/back.tex}
+\input{src/backmatter/studentGuide.tex}
+
+
+% =====================
+% REFERENCES
+% =====================
+\renewcommand{\bibname}{REFERENCES}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,63 @@
+\chapter{Introduction}
+
+\section{Background}
+
+In today's digital era, website availability and uptime are critical for businesses, educational institutions, and organizations. Websites serve as the primary interface for information dissemination, service delivery, and communication. Any downtime can result in loss of productivity, revenue, and user trust.
+
+Educational institutions like Thapathali Campus rely heavily on multiple web services for student information systems, result portals, library services, and administrative functions. However, monitoring the availability of these services manually is time-consuming and inefficient. There is a need for automated monitoring solutions that can track website uptime, detect downtime events, and provide real-time status information to users.
+
+Similar to platforms like status.tcioe.edu.np and downdetector.com, an uptime tracking system can provide valuable insights into website availability, response times, and performance metrics over time.
+
+\section{Problem Statement}
+
+Currently, there is no centralized system to monitor and track the uptime status of college websites and services. When a website goes down, users are often unaware whether the issue is temporary or long-term. System administrators lack historical data on uptime patterns, average response times, and downtime incidents.
+
+The absence of such a monitoring system leads to:
+\begin{itemize}
+    \item Delayed response to downtime incidents
+    \item Lack of transparency about service availability
+    \item No historical data for performance analysis
+    \item Difficulty in identifying patterns of downtime
+    \item Poor user experience due to unavailability information
+\end{itemize}
+
+\section{Objectives}
+
+The primary objectives of this project are:
+
+\begin{enumerate}
+    \item \textbf{Develop an automated website monitoring system} that can track the uptime status of multiple websites in real-time.
+    \item \textbf{Implement periodic ping checks} to monitor website availability at regular intervals (every 5 minutes).
+    \item \textbf{Store and analyze historical data} including response times, average hourly uptime, and daily availability metrics.
+    \item \textbf{Create a user-friendly dashboard} to display current website status and historical analytics.
+    \item \textbf{Implement user authentication} to allow website owners to register and monitor their sites.
+    \item \textbf{Provide public and private monitoring options} for different use cases.
+\end{enumerate}
+
+\section{Scope and Limitations}
+
+\subsection{Scope}
+
+The Uptime Tracker system will include:
+
+\begin{itemize}
+    \item User registration and authentication system
+    \item Website registration and ownership management
+    \item Automated ping monitoring at 5-minute intervals
+    \item Response time measurement and logging
+    \item Hourly and daily average calculation
+    \item Public status page for monitored websites
+    \item Analytics dashboard showing uptime statistics
+    \item Historical data visualization
+    \item PostgreSQL database for data storage
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item The system monitors only HTTP/HTTPS website availability and does not check specific application functionality
+    \item Monitoring frequency is limited to 5-minute intervals to balance server load and data accuracy
+    \item The system does not provide detailed performance metrics like page load times or resource usage
+    \item No automated alerting or notification system for downtime events in the initial version
+    \item Geographic monitoring is limited to a single server location
+\end{itemize}

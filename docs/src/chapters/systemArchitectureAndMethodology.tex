@@ -1,0 +1,63 @@
+\chapter{SYSTEM ARCHITECTURE AND METHODOLOGY}
+
+\section{System Overview}
+
+The Uptime Tracker system consists of three main components: a web application frontend for user interaction, a backend server for business logic and API handling, and a PostgreSQL database for persistent storage. The system also includes an automated monitoring service that periodically checks website availability.
+
+\section{Database Architecture}
+
+The system uses PostgreSQL database with the following schema:
+
+\subsection{Users Table}
+Stores user account information including name, email, and authentication credentials. Each user is identified by a unique ID and email address.
+
+\subsection{Ownership Table}
+Maintains relationships between websites and their owners. Includes a boolean flag for public/private visibility control. This table links website URLs to user accounts.
+
+\subsection{Analytics Table}
+Records individual ping results for monitored websites. Each entry includes:
+\begin{itemize}
+    \item Website URL (foreign key to ownership)
+    \item Response time (ping5) in milliseconds
+    \item Timestamp of the check
+\end{itemize}
+
+\subsection{Average Hour Table}
+Stores aggregated hourly statistics including average response time for each website within each hour period.
+
+\subsection{Average Day Table}
+Maintains daily average statistics, providing long-term trends and historical performance data.
+
+\section{Monitoring Methodology}
+
+\subsection{Ping Check Process}
+The monitoring service performs HTTP/HTTPS requests to registered websites every 5 minutes. For each check:
+\begin{enumerate}
+    \item Send HTTP request to the website URL
+    \item Measure response time
+    \item Record success/failure status
+    \item Store result in analytics table
+    \item Update hourly and daily averages
+\end{enumerate}
+
+\subsection{Data Aggregation}
+Hourly and daily averages are calculated using SQL aggregate functions on the analytics data. This provides efficient querying for dashboard displays and trend analysis.
+
+\section{User Interaction Flow}
+
+\begin{enumerate}
+    \item User registers and creates an account
+    \item User adds website URLs to monitor
+    \item System begins automated monitoring
+    \item User views real-time status on dashboard
+    \item User accesses historical analytics and reports
+\end{enumerate}
+
+\section{Technology Stack}
+
+\begin{itemize}
+    \item \textbf{Database:} PostgreSQL 18.1
+    \item \textbf{Backend:} (To be determined - Python/Node.js)
+    \item \textbf{Frontend:} (To be determined - React/Vue.js)
+    \item \textbf{Monitoring:} Scheduled cron jobs or background workers
+\end{itemize}
