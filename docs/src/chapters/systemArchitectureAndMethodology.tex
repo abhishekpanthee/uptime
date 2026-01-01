@@ -266,7 +266,14 @@ The backend will expose RESTful API endpoints organized by resource type. Table 
 
 \section{Monitoring Service}
 
-The monitoring service executes: (1) scheduler triggers checks every 5 minutes; (2) retrieves URLs from ownership table; (3) sends parallel \gls{http} requests; (4) records response times in analytics table; (5) updates hourly aggregates.
+The monitoring service executes the following steps:
+\begin{itemize}
+    \item Scheduler triggers checks every 5 minutes
+    \item Retrieves URLs from ownership table
+    \item Sends parallel \gls{http} requests
+    \item Records response times in analytics table
+    \item Updates hourly aggregates
+\end{itemize}
 
 \section{User Interface Design}
 
@@ -274,7 +281,13 @@ The frontend uses a component-based architecture with: Landing Page, Dashboard (
 
 \section{Development Methodology}
 
-The project follows iterative development with incremental features, regular integration, and prioritized backlog. Development phases: (1) Foundation---setup and authentication; (2) Core Features---monitoring service; (3) Interface---dashboard and visualizations; (4) Polish---testing and error handling; (5) Documentation.
+The project follows iterative development with incremental features, regular integration, and prioritized backlog. Development phases:
+\begin{itemize}
+    \item Foundation---setup and authentication
+    \item Core Features---monitoring service
+    \item Interface---dashboard and visualizations
+    \item Polish---testing and error handling
+\end{itemize}
 
 \section{Deployment}
 
