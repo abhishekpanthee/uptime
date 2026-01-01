@@ -1,22 +1,50 @@
 \chapter{LITERATURE REVIEW}
 
-\section{Website Monitoring and Availability}
+\section{Introduction to Website Monitoring}
 
-Website availability monitoring is critical for modern web infrastructure, with IT downtime costing approximately \$5,600 per minute \cite{gartner2014}. Monitoring systems employ active probing---sending periodic HTTP requests to verify availability by checking response codes and response times \cite{rfc7231}.
+Website monitoring refers to the practice of systematically testing and verifying that websites and web services are functioning correctly and accessible to end users \cite{sommerville2016software}. This process involves automated systems that periodically send requests to target URLs and analyze the responses to determine availability status. The importance of website monitoring has grown significantly as organizations increasingly depend on web-based services for critical operations.
 
-Patterson et al. \cite{patterson2002} defined uptime as the percentage of time a system remains operational, typically expressed as "nines" (e.g., 99.9\% equals 8.76 hours downtime per year) in Service Level Agreements.
+Modern monitoring systems track multiple metrics including availability (whether the site responds), response time (how quickly it responds), and status codes (whether the response indicates success or error) \cite{berners1996http}. These metrics provide administrators with the data needed to identify problems, measure service quality, and ensure compliance with service level agreements.
+
+The evolution of monitoring has progressed from simple ping-based checks to sophisticated synthetic monitoring that simulates user interactions. However, for many use cases, basic HTTP availability monitoring provides sufficient visibility into service health without the complexity of full synthetic monitoring solutions.
+
+\section{Importance of Uptime Monitoring}
+
+Website downtime carries significant costs across multiple dimensions. Research by the Ponemon Institute indicates that IT downtime costs organizations an average of \$5,600 per minute, though actual costs vary widely based on organization size and business model \cite{ponemon2016cost}. For e-commerce sites, downtime directly translates to lost sales. For educational institutions, downtime disrupts learning activities and administrative processes.
+
+Beyond direct financial impact, downtime affects user perception and trust. Studies in user experience research demonstrate that users form lasting negative impressions from poor reliability experiences \cite{nielsen1994response}. A website that is frequently unavailable or slow trains users to seek alternatives. This is particularly relevant for educational portals where students may have time-sensitive needs for accessing results, registration systems, or learning materials.
+
+Proactive monitoring enables organizations to detect issues before users report them, often reducing mean time to resolution. Historical monitoring data also supports capacity planning, helps identify patterns that predict failures, and provides evidence for infrastructure investment decisions \cite{gartner2014downtime}.
 
 \section{Existing Monitoring Solutions}
 
 \subsection{Commercial Platforms}
 
-Pingdom offers comprehensive monitoring with global probe locations \cite{pingdom2023}. UptimeRobot provides 5-minute monitoring intervals with a freemium model \cite{uptimerobot2023}. Downdetector aggregates user reports rather than active monitoring \cite{downdetector2023}.
+Several commercial platforms dominate the website monitoring market, each with distinct features and pricing models:
+
+\textbf{Pingdom} \cite{pingdom2023} offers comprehensive monitoring from multiple geographic locations, synthetic transaction monitoring, and detailed performance analytics. The service provides real user monitoring capabilities and integration with popular notification services. However, pricing scales with the number of monitors and features required, making it potentially expensive for organizations monitoring many endpoints.
+
+\textbf{UptimeRobot} \cite{uptimerobot2023} provides a popular freemium model with 5-minute check intervals on the free tier. The service monitors HTTP/HTTPS endpoints, provides status pages, and offers alerting through various channels. Its simplicity and free tier make it accessible for small projects, though advanced features require paid subscriptions.
+
+\textbf{StatusCake} offers website monitoring with features including page speed monitoring, server monitoring, and domain expiration checking. The platform provides public status pages and supports integration with incident management tools.
+
+\textbf{Datadog} provides enterprise-grade monitoring as part of a broader observability platform. While powerful, its complexity and cost position it for larger organizations with dedicated operations teams.
 
 \subsection{Open-Source Solutions}
 
-Uptime Kuma is a popular self-hosted solution with Docker deployment \cite{uptimekuma2023}. Nagios and Zabbix provide enterprise-grade capabilities but require significant expertise \cite{nagios2023, zabbix2023}. Prometheus with Blackbox Exporter enables HTTP probing within cloud-native environments \cite{prometheus2023}.
+Open-source alternatives provide self-hosted options with different trade-offs:
 
-Table \ref{tab:monitoring-comparison} compares key features of existing solutions.
+\textbf{Uptime Kuma} has gained significant popularity as a self-hosted monitoring solution. Built with Node.js and featuring a clean web interface, it supports multiple monitor types including HTTP, TCP, DNS, and Docker containers. The project's active development and Docker deployment option make it accessible for users with basic technical skills. However, it requires server infrastructure to host and maintain.
+
+\textbf{Nagios} represents the traditional enterprise monitoring approach with extensive plugin ecosystems and flexible configuration. Originally designed for infrastructure monitoring, it can monitor websites through HTTP checks. However, its configuration complexity and dated interface present barriers for users without specialized experience.
+
+\textbf{Zabbix} offers comprehensive monitoring capabilities including web scenarios that can test multi-step interactions. Like Nagios, it requires significant setup and expertise but provides powerful features for organizations willing to invest in configuration.
+
+\textbf{Prometheus with Blackbox Exporter} enables HTTP probing within cloud-native environments. This approach integrates well with Kubernetes deployments and modern infrastructure but requires familiarity with the Prometheus ecosystem.
+
+\subsection{Comparison of Solutions}
+
+Table \ref{tab:monitoring-comparison} summarizes key characteristics of existing monitoring solutions:
 
 \begin{table}[htbp]
     \centering
@@ -24,33 +52,80 @@ Table \ref{tab:monitoring-comparison} compares key features of existing solution
     \label{tab:monitoring-comparison}
     \begin{tabular}{lcccc}
         \toprule
-        \textbf{Solution} & \textbf{Type} & \textbf{Interval} & \textbf{Status Page} & \textbf{Self-Hosted} \\
+        \textbf{Solution} & \textbf{Type} & \textbf{Min Interval} & \textbf{Status Page} & \textbf{Self-Hosted} \\
         \midrule
-        Pingdom           & Commercial    & 1 min             & Yes                  & No                   \\
-        UptimeRobot       & Commercial    & 5 min             & Yes                  & No                   \\
-        Uptime Kuma       & Open-Source   & 1 min             & Yes                  & Yes                  \\
-        Nagios            & Open-Source   & 1 min             & Limited              & Yes                  \\
-        Our System        & Open-Source   & 5 min             & Yes                  & Yes                  \\
+        Pingdom           & Commercial    & 1 minute              & Yes                  & No                   \\
+        UptimeRobot       & Freemium      & 5 minutes             & Yes                  & No                   \\
+        StatusCake        & Freemium      & 5 minutes             & Yes                  & No                   \\
+        Uptime Kuma       & Open-Source   & 20 seconds            & Yes                  & Yes                  \\
+        Nagios            & Open-Source   & 1 minute              & Plugin               & Yes                  \\
+        Zabbix            & Open-Source   & 1 minute              & Built-in             & Yes                  \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\section{Technical Approaches}
+\section{Technical Approaches to Monitoring}
 
-HTTP monitoring sends requests to URLs and analyzes response status codes, response time, and SSL certificate validity \cite{rfc7231}. ICMP ping provides basic reachability but doesn't verify application functionality \cite{rfc792}. Five-minute intervals balance detection speed with resource consumption \cite{mansmann2007}.
+\subsection{HTTP-Based Monitoring}
 
-\section{Data Storage}
+HTTP monitoring sends requests to target URLs and analyzes the responses. A basic availability check verifies that the server responds with a successful status code (typically in the 200 range). More sophisticated checks may validate response content, check SSL certificate validity, or verify specific headers.
 
-PostgreSQL handles time-series monitoring data efficiently with temporal queries and aggregations \cite{postgresql2023}. For moderate data volumes, it provides adequate performance with simpler deployment than specialized databases like InfluxDB \cite{influxdb2023}.
+The HTTP protocol defines status codes that indicate request outcomes: 2xx codes indicate success, 3xx indicate redirects, 4xx indicate client errors, and 5xx indicate server errors. Monitoring systems interpret these codes to determine availability status. A 200 response generally indicates the site is up, while 5xx responses indicate server-side problems.
 
-\section{Research Gaps}
+Response time measurement provides insight into performance beyond simple availability. This metric captures the total time from request initiation to response completion, including DNS resolution, TCP connection, TLS handshake, and data transfer. Slow response times may indicate server overload, network issues, or application problems even when the site remains technically available.
 
-Existing solutions have limitations for educational institutions:
-\begin{itemize}
-    \item Commercial solutions impose recurring subscription costs
-    \item Enterprise tools (Nagios, Zabbix) require significant expertise
-    \item Cloud-based monitoring cannot detect internal network issues
-    \item Limited customization for institutional requirements
-\end{itemize}
+\subsection{Check Intervals and Data Volume}
 
-Our Uptime Tracker addresses these gaps with a simple, self-hosted solution for institutions like Thapathali Campus.
+The frequency of monitoring checks involves trade-offs between detection speed and resource consumption. More frequent checks detect outages faster but generate more data and consume more resources on both the monitoring system and monitored targets.
+
+A 5-minute interval represents a common balance point. With 5-minute checks, an outage will be detected within 5 minutes on average. This interval generates 288 data points per day per monitored site, a manageable volume for most database systems. Shorter intervals like 1 minute increase data volume fivefold while only marginally improving detection time for most practical purposes.
+
+For systems monitoring many endpoints, check intervals also affect the load on the monitoring infrastructure itself. A system monitoring 100 websites at 1-minute intervals must handle 100 checks per minute, while 5-minute intervals reduce this to 20 checks per minute.
+
+\subsection{Data Aggregation Strategies}
+
+Raw monitoring data accumulates rapidly, making aggregation essential for long-term storage and efficient querying. Common aggregation strategies include:
+
+\textbf{Hourly aggregates} summarize each hour's checks into average response time, minimum/maximum values, and availability percentage. This reduces 12 data points (at 5-minute intervals) to a single summary record while preserving meaningful performance information.
+
+\textbf{Daily aggregates} further summarize 24 hourly records into daily statistics, enabling long-term trend analysis without storing indefinite raw data.
+
+This hierarchical aggregation approach balances detail retention with storage efficiency. Recent data remains at full resolution for troubleshooting, while historical data is available in summarized form for trend analysis.
+
+\section{Database Considerations}
+
+Monitoring systems generate time-series data characterized by continuous timestamp-indexed measurements \cite{date2003introduction}. While specialized time-series databases like InfluxDB and TimescaleDB offer optimized storage and query capabilities for such data, traditional relational databases like PostgreSQL handle moderate monitoring workloads effectively \cite{postgresql2024}.
+
+PostgreSQL's temporal data types, window functions, and aggregation capabilities support common monitoring queries including average calculations, percentile analysis, and time-range filtering \cite{codd1970relational}. For systems monitoring hundreds rather than thousands of endpoints, PostgreSQL provides adequate performance with the benefits of relational integrity, mature tooling, and widespread familiarity.
+
+The choice between specialized and general-purpose databases depends on scale requirements. A monitoring system tracking fewer than 1000 endpoints with 5-minute intervals generates approximately 288,000 records daily, well within PostgreSQL's capabilities. Larger deployments may benefit from purpose-built time-series solutions.
+
+\section{Modern Web Development Stack}
+
+The technology landscape for web application development has evolved significantly, with JavaScript/TypeScript ecosystems now supporting full-stack development \cite{typescript2024}:
+
+\textbf{Next.js} \cite{nextjs2024} provides a React-based framework for building web applications with server-side rendering, static generation, and API routes \cite{chen2020react}. Its integrated development experience simplifies building interactive dashboards and data visualizations.
+
+\textbf{Bun} \cite{bun2024} is a modern JavaScript runtime designed for speed, offering significantly faster startup times and package installation compared to Node.js. Its compatibility with npm packages and native TypeScript support make it attractive for new projects.
+
+\textbf{Elysia.js} \cite{elysiajs2024} is a TypeScript-first web framework built for Bun, emphasizing type safety and developer experience. Its end-to-end type inference enables catching errors at compile time rather than runtime.
+
+These technologies represent a modern approach to web development that prioritizes developer productivity and application performance.
+
+\section{Identified Research Gaps}
+
+Analysis of existing solutions reveals gaps that the Uptime Tracker project addresses:
+
+\begin{enumerate}
+    \item \textbf{Cost accessibility:} Commercial solutions require ongoing subscriptions that may exceed budgets for educational institutions or small organizations. Open-source alternatives are free but require infrastructure investment.
+    
+    \item \textbf{Complexity barriers:} Enterprise tools like Nagios and Zabbix offer powerful capabilities but present steep learning curves. Simpler alternatives may lack features needed for meaningful monitoring.
+    
+    \item \textbf{Deployment requirements:} Self-hosted solutions require Docker knowledge or server administration skills. A solution using familiar web development patterns could be more accessible.
+    
+    \item \textbf{Customization needs:} Generic monitoring solutions may not address specific institutional requirements for status page branding, user management, or data retention policies.
+    
+    \item \textbf{Modern technology adoption:} Many monitoring tools use older technology stacks. A solution built with current frameworks demonstrates modern development practices suitable for academic contexts.
+\end{enumerate}
+
+The Uptime Tracker project aims to address these gaps by providing a straightforward, self-hosted monitoring solution built with modern web technologies, designed for deployment by users with standard web development experience.

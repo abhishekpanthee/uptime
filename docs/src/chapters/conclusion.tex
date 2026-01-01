@@ -1,48 +1,55 @@
 \chapter{CONCLUSION}
 
-%  WRITING GUIDELINES FOR CONCLUSION CHAPTER
-%  ==========================================
- The Conclusion chapter summarizes your project, highlights key achievements, discusses limitations,
- and suggests future work. It should provide closure to your report and leave readers with a clear
- understanding of what you accomplished and its significance.
+\section{Summary}
 
-%  STRUCTURE TEMPLATE:
- \section{Achievements}
- \section{Limitations}
- \section{Future Work}
- \section{Final Remarks}
+This proposal presents the Uptime Tracker project, a web-based monitoring system designed to track website availability, measure response times, and provide analytics through an intuitive dashboard. The project addresses a practical need within educational institutions and organizations for transparent service status monitoring without the recurring costs associated with commercial solutions.
 
-%  SUMMARY OF WORK:
+The proposed system employs a modern three-tier architecture with a Next.js frontend, Elysia.js backend API, and PostgreSQL database, all running on the Bun JavaScript runtime. This technology stack demonstrates contemporary full-stack development practices while maintaining simplicity suitable for deployment on standard infrastructure.
 
-%  KEY ACHIEVEMENTS:
- Highlight major accomplishments:
-  Briefly recap the problem you addressed, your approach, and what you built. This should be
- 1-2 paragraphs summarizing the entire project without going into technical details.
+\section{Expected Contributions}
 
- - Whether objectives were met
- - Performance metrics achieved
- - Novel contributions or innovations
- - Successful integration or deployment
- Be specific and quantitative where possible.
+Upon successful completion, the project is expected to deliver:
 
-%  LIMITATIONS:
- Acknowledge limitations of your work honestly:
- - Technical constraints encountered
- - Performance limitations
- - Scope restrictions
- - Areas where further improvement is needed
+\begin{enumerate}
+    \item A functional web application enabling automated website monitoring with 5-minute check intervals
+    \item A comprehensive database system storing raw ping results, hourly aggregates, and daily statistics
+    \item An interactive dashboard displaying real-time website status and historical trends
+    \item Public status pages allowing transparent service health communication
+    \item Complete technical documentation including database schema, API reference, and deployment guide
+\end{enumerate}
 
- FUTURE WORK:
- Suggest concrete directions for extending your project:
- - Additional features that could be implemented
- - Performance improvements that could be made
- - Alternative approaches that could be explored
- - Scaling or deployment in real-world settings
- - Research questions that emerged from your work
+\section{Feasibility Assessment}
 
-%  FINAL REMARKS:
- End with a brief statement about the significance of your work and its potential impact.
+The project is considered feasible based on the following factors:
 
- LaTeX quick refs:
- - Keep conclusion concise; avoid introducing new results.
- - If referencing key results: point to earlier figures/tables via
+\begin{itemize}
+    \item \textbf{Technical Feasibility:} All proposed technologies are well-documented, actively maintained, and have been successfully used in similar applications. The development team has prior experience with JavaScript/TypeScript web development.
+    
+    \item \textbf{Time Feasibility:} The 3-month timeline allows adequate time for design, development, testing, and documentation phases with buffer time for unexpected challenges.
+    
+    \item \textbf{Resource Feasibility:} The project requires minimal financial investment as all development tools are open-source. Free-tier cloud services can support initial deployment.
+    
+    \item \textbf{Scope Appropriateness:} The defined scope is realistic for a DBMS academic project, focusing on core monitoring functionality without overambitious feature expansion.
+\end{itemize}
+
+\section{Potential Challenges}
+
+The following challenges are anticipated and will be addressed during development:
+
+\begin{enumerate}
+    \item \textbf{Reliable Scheduling:} Ensuring the monitoring service executes checks consistently requires careful implementation of the scheduling mechanism and error handling.
+    
+    \item \textbf{Database Optimization:} As monitoring data accumulates, query performance may degrade. Proper indexing and data archival strategies will be implemented.
+    
+    \item \textbf{Authentication Security:} Implementing secure user authentication requires careful attention to password hashing, token management, and session handling.
+    
+    \item \textbf{Real-time Updates:} Displaying live status updates on the dashboard without excessive server load requires efficient data fetching strategies.
+\end{enumerate}
+
+\section{Conclusion}
+
+The Uptime Tracker project represents a practical application of database management concepts combined with modern web development practices. By developing this system, the team will gain hands-on experience with full-stack development, database design, API implementation, and background service development.
+
+The proposed system fills a genuine need for accessible website monitoring within educational and organizational contexts. Upon completion, the Uptime Tracker will provide Thapathali Campus with a tool for monitoring institutional web services while serving as a reference implementation for future academic projects.
+
+The project team is confident in the successful completion of this project within the proposed timeline and budget, delivering a functional, documented, and deployable website monitoring system.

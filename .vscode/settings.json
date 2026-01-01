@@ -1,61 +1,40 @@
 {
-  // MiKTeX bin directory path
   "latex-workshop.latex.tools": [
     {
       "name": "pdflatex",
-      "command": "C:/Users/Paudel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/pdflatex.exe",
+      "command": "/Users/abhishekpanthee/bin/pdflatex",
       "args": [
         "-synctex=1",
         "-interaction=nonstopmode",
         "-file-line-error",
-        "-output-directory=%OUTDIR%",
         "%DOC%"
-      ],
-      "env": {}
+      ]
     },
     {
       "name": "bibtex",
-      "command": "C:/Users/Paudel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/bibtex.exe",
+      "command": "/Users/abhishekpanthee/bin/bibtex",
       "args": [
         "%DOCFILE%"
-      ],
-      "env": {}
+      ]
     },
     {
       "name": "makeglossaries",
-      "command": "C:/Users/Paudel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/makeglossaries.exe",
+      "command": "/Users/abhishekpanthee/bin/makeglossaries",
       "args": [
         "%DOCFILE%"
-      ],
-      "env": {}
-    },
-    {
-      "name": "makeindex",
-      "command": "C:/Users/Paudel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/makeindex.exe",
-      "args": [
-        "%DOCFILE%.nlo",
-        "-s",
-        "nomencl.ist",
-        "-o",
-        "%DOCFILE%.nls"
-      ],
-      "env": {}
-    },
-    {
-      "name": "latexmk",
-      "command": "C:/Users/Paudel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/latexmk.exe",
-      "args": [
-        "-synctex=1",
-        "-interaction=nonstopmode",
-        "-file-line-error",
-        "-pdf",
-        "-outdir=%OUTDIR%",
-        "%DOC%"
-      ],
-      "env": {}
+      ]
     }
   ],
   "latex-workshop.latex.recipes": [
+    {
+      "name": "pdflatex ➞ bibtex ➞ pdflatex × 2",
+      "tools": [
+        "pdflatex",
+        "bibtex",
+        "pdflatex",
+        "pdflatex"
+      ]
+    },
     {
       "name": "pdflatex ➞ makeglossaries ➞ bibtex ➞ pdflatex × 2",
       "tools": [
@@ -67,85 +46,13 @@
       ]
     },
     {
-      "name": "pdflatex ➞ bibtex ➞ pdflatex × 2",
-      "tools": [
-        "pdflatex",
-        "bibtex",
-        "pdflatex",
-        "pdflatex"
-      ]
-    },
-    {
       "name": "pdflatex",
       "tools": [
         "pdflatex"
-      ]
-    },
-    {
-      "name": "latexmk",
-      "tools": [
-        "latexmk"
       ]
     }
   ],
   "latex-workshop.latex.recipe.default": "pdflatex ➞ makeglossaries ➞ bibtex ➞ pdflatex × 2",
   "latex-workshop.latex.autoBuild.run": "onSave",
-  "latex-workshop.view.pdf.viewer": "tab",
-
-  // Root file configuration for multi-file projects
-  "latex-workshop.latex.rootFile.doNotPrompt": true,
-  "latex-workshop.latex.rootFile.useSubFile": false,
-
-  // Clean auxiliary files
-  "latex-workshop.latex.clean.fileTypes": [
-    "*.aux",
-    "*.bbl",
-    "*.blg",
-    "*.idx",
-    "*.ind",
-    "*.lof",
-    "*.lot",
-    "*.out",
-    "*.toc",
-    "*.acn",
-    "*.acr",
-    "*.alg",
-    "*.glg",
-    "*.glo",
-    "*.gls",
-    "*.ist",
-    "*.fls",
-    "*.log",
-    "*.fdb_latexmk",
-    "*.snm",
-    "*.nav",
-    "*.dvi",
-    "*.synctex.gz",
-    "*.synctex(busy)",
-    "*.slg",
-    "*.slo",
-    "*.sls"
-  ],
-
-  // SyncTeX settings for PDF-source synchronization
-  "latex-workshop.synctex.afterBuild.enabled": true,
-
-  // Intellisense settings
-  "latex-workshop.intellisense.package.enabled": true,
-  "latex-workshop.intellisense.citation.backend": "bibtex",
-
-  // Build on save configuration
-  "latex-workshop.latex.autoBuild.interval": 1000,
-
-  // Output directory (same as source)
-  "latex-workshop.latex.outDir": "%DIR%",
-
-  // Error/warning messages
-  "latex-workshop.message.error.show": true,
-  "latex-workshop.message.warning.show": true,
-
-  // Hover preview
-  "latex-workshop.hover.preview.enabled": true,
-  "latex-workshop.hover.citation.enabled": true,
-  "latex-workshop.hover.ref.enabled": true
+  "latex-workshop.view.pdf.viewer": "tab"
 }

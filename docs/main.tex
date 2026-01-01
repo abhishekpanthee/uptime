@@ -16,7 +16,9 @@
 \input{src/frontmatter/abbreviations}
 \input{src/frontmatter/symbols}
 
-
+% Remove paragraph indentation for cleaner look
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
 
 \begin{document}
 % =====================
@@ -49,9 +51,7 @@
 \input{src/chapters/literatureReview}
 \input{src/chapters/requirements}
 \input{src/chapters/systemArchitectureAndMethodology}
-\input{src/chapters/implementationDetails}
-\input{src/chapters/resultAndAnalysis}
-\input{src/chapters/remainingTasks}
+\input{src/chapters/expectedOutcomes}
 \input{src/chapters/conclusion}
 
 % =====================
@@ -61,7 +61,7 @@
 \appendix
 \addcontentsline{toc}{chapter}{APPENDICES}
 \input{src/backmatter/back.tex}
-\input{src/backmatter/studentGuide.tex}
+% \input{src/backmatter/studentGuide.tex}  % LaTeX guide - not needed for final report
 
 
 % =====================

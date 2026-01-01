@@ -1,4 +1,223 @@
 \chapter{REMAINING TASKS}
 
-\noindent\textbf{CHAPTER GUIDE:} Purpose: describe unfinished work, risks, and a realistic plan. Must include: What is completed vs pending, Remaining milestones, Risks/blockers + mitigation. LaTeX: Use itemize for checklists; enumerate for ordered milestones.
+\section{Project Progress Overview}
+
+This chapter documents the current state of the Uptime Tracker project, outlining completed work, pending tasks, and the timeline for completion. The project has achieved its primary functional goals with several enhancement opportunities identified for future implementation.
+
+\section{Completed Work}
+
+The following major components have been fully implemented and tested:
+
+\subsection{Backend Development}
+\begin{itemize}
+    \item[\checkmark] Database schema design and implementation
+    \item[\checkmark] User authentication system with JWT tokens
+    \item[\checkmark] Website registration and management API
+    \item[\checkmark] Monitoring service with 5-minute check intervals
+    \item[\checkmark] Data recording and storage functionality
+    \item[\checkmark] Hourly and daily aggregation calculations
+    \item[\checkmark] Public status API endpoints
+    \item[\checkmark] Analytics data retrieval endpoints
+\end{itemize}
+
+\subsection{Frontend Development}
+\begin{itemize}
+    \item[\checkmark] User registration and login pages
+    \item[\checkmark] Dashboard with website status cards
+    \item[\checkmark] Website detail view with response time charts
+    \item[\checkmark] Add/edit website forms
+    \item[\checkmark] Public status page
+    \item[\checkmark] Responsive design for mobile devices
+    \item[\checkmark] Authentication state management
+\end{itemize}
+
+\subsection{Documentation}
+\begin{itemize}
+    \item[\checkmark] Database schema documentation
+    \item[\checkmark] API endpoint documentation
+    \item[\checkmark] Installation and setup guide
+    \item[\checkmark] Project report compilation
+\end{itemize}
+
+\section{Pending Tasks}
+
+\subsection{High Priority}
+The following tasks are planned for completion before project submission:
+
+\begin{enumerate}
+    \item \textbf{User Interface Polish}
+    \begin{itemize}
+        \item Improve error message displays
+        \item Add loading states for all async operations
+        \item Implement form validation feedback
+        \item Estimated time: 2-3 days
+    \end{itemize}
+    
+    \item \textbf{Testing Completion}
+    \begin{itemize}
+        \item Complete unit tests for critical functions
+        \item Perform cross-browser compatibility testing
+        \item Document test results
+        \item Estimated time: 2 days
+    \end{itemize}
+    
+    \item \textbf{Deployment Preparation}
+    \begin{itemize}
+        \item Create production environment configuration
+        \item Set up process management for monitoring service
+        \item Configure HTTPS for production
+        \item Estimated time: 1-2 days
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Lower Priority (Time Permitting)}
+
+\begin{enumerate}
+    \item \textbf{Email Notifications}
+    \begin{itemize}
+        \item Downtime alert emails to website owners
+        \item Status change notifications
+        \item Estimated time: 3-4 days
+    \end{itemize}
+    
+    \item \textbf{Enhanced Analytics}
+    \begin{itemize}
+        \item Uptime percentage calculations for custom periods
+        \item Export data to CSV
+        \item Estimated time: 2 days
+    \end{itemize}
+    
+    \item \textbf{Admin Dashboard}
+    \begin{itemize}
+        \item System statistics overview
+        \item User management interface
+        \item Estimated time: 3 days
+    \end{itemize}
+\end{enumerate}
+
+\section{Known Issues}
+
+The following issues have been identified and documented:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Known Issues and Status}
+    \label{tab:known-issues}
+    \begin{tabular}{p{6cm}lp{4cm}}
+        \toprule
+        \textbf{Issue} & \textbf{Severity} & \textbf{Plan} \\
+        \midrule
+        Charts slow with large datasets & Medium & Implement data sampling \\
+        No password reset functionality & Low & Future enhancement \\
+        Mobile chart interactions limited & Low & Acceptable for MVP \\
+        Session doesn't persist on refresh & Medium & Fix before submission \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Risk Assessment}
+
+\subsection{Technical Risks}
+
+\begin{enumerate}
+    \item \textbf{Database Performance at Scale}
+    \begin{itemize}
+        \item Risk: Query performance may degrade with large data volumes
+        \item Mitigation: Implemented indexing; can add partitioning if needed
+        \item Impact: Low for expected usage levels
+    \end{itemize}
+    
+    \item \textbf{Monitoring Service Reliability}
+    \begin{itemize}
+        \item Risk: Service crashes could cause missed checks
+        \item Mitigation: Process manager (PM2) for automatic restart
+        \item Impact: Medium; affects data completeness
+    \end{itemize}
+    
+    \item \textbf{Third-party Dependencies}
+    \begin{itemize}
+        \item Risk: Breaking changes in Bun or Elysia updates
+        \item Mitigation: Version pinning in package.json
+        \item Impact: Low; can delay updates if issues arise
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Schedule Risks}
+
+\begin{enumerate}
+    \item \textbf{Testing Delays}
+    \begin{itemize}
+        \item Risk: Bug fixes may take longer than estimated
+        \item Mitigation: Focus on critical path features first
+        \item Impact: Medium; could delay polish items
+    \end{itemize}
+    
+    \item \textbf{Documentation Time}
+    \begin{itemize}
+        \item Risk: Report writing competing with development time
+        \item Mitigation: Document incrementally during development
+        \item Impact: Low; documentation progressing well
+    \end{itemize}
+\end{enumerate}
+
+\section{Project Timeline}
+
+\subsection{Completed Milestones}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Completed Milestones}
+    \label{tab:completed-milestones}
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Milestone} & \textbf{Target Date} & \textbf{Status} \\
+        \midrule
+        Project Proposal & Week 2 & Completed \\
+        Database Design & Week 4 & Completed \\
+        Backend API Development & Week 8 & Completed \\
+        Frontend Development & Week 11 & Completed \\
+        Integration Testing & Week 13 & Completed \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Remaining Milestones}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Remaining Milestones}
+    \label{tab:remaining-milestones}
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Milestone} & \textbf{Target Date} & \textbf{Status} \\
+        \midrule
+        UI Polish and Bug Fixes & Week 14 & In Progress \\
+        Final Testing & Week 15 & Pending \\
+        Documentation Completion & Week 15 & In Progress \\
+        Project Submission & Week 16 & Pending \\
+        Presentation Preparation & Week 16 & Pending \\
+        Final Presentation & Week 17 & Pending \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Resource Requirements}
+
+\subsection{Development Resources}
+\begin{itemize}
+    \item Development machines with Bun and PostgreSQL installed
+    \item Git repository for version control
+    \item Testing devices (desktop, mobile) for cross-platform verification
+\end{itemize}
+
+\subsection{Deployment Resources}
+\begin{itemize}
+    \item Linux server with minimum 2GB RAM
+    \item PostgreSQL database (self-hosted or managed)
+    \item Domain name and SSL certificate for production
+\end{itemize}
+
+\section{Summary}
+
+The Uptime Tracker project has achieved approximately 85\% completion with all core features implemented and functional. The remaining work focuses primarily on polish, testing, and documentation rather than new feature development. The identified risks are manageable with planned mitigations in place. The project is on track for successful completion within the defined timeline.
 

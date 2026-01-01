@@ -1,0 +1,82 @@
+\documentclass[10pt,border=2pt]{standalone}
+\usepackage{tikz}
+\usepackage{pgfgantt}
+\usepackage{xcolor}
+\usepackage{times}
+
+\begin{document}
+
+\begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=2.5mm,
+        y unit chart=5mm,
+        time slot format=isodate,
+        milestone/.append style={fill=red!100, shape=star},
+        bar/.append style={fill=blue!50},
+        group/.append style={fill=orange!100},
+        title/.append style={fill=blue!20},
+        bar height=0.6,
+        progress label text={},
+        today=2026-01-01,
+        today label=Today,
+        today label font=\color{red}\bfseries,
+        milestone label font=\color{red},
+        link/.style={-latex, thick},
+        group label font=\bfseries\color{black},
+    ]{2025-12-12}{2026-03-31}
+
+    % Title
+    \gantttitlecalendar{year, month=name} \\
+
+    % 1. Project Initiation & Planning
+    \ganttgroup{1. Project Initiation}{2025-12-12}{2025-12-20} \\
+    \ganttbar[name=topic_selection]{Topic Selection}{2025-12-12}{2025-12-14} \\
+    \ganttbar[name=problem_definition]{Problem Definition}{2025-12-14}{2025-12-17} \\
+    \ganttbar[name=literature_review]{Literature Review}{2025-12-16}{2025-12-20} \\
+
+    % 2. System Design (Before Proposal)
+    \ganttgroup{2. System Design}{2025-12-18}{2025-12-30} \\
+    \ganttbar[name=requirement_analysis]{Requirements Analysis}{2025-12-18}{2025-12-22} \\
+    \ganttbar[name=database_design]{Database Design}{2025-12-21}{2025-12-26} \\
+    \ganttbar[name=architecture_design]{Architecture Design}{2025-12-24}{2025-12-30} \\
+
+    % 3. Proposal Preparation & Submission
+    \ganttgroup{3. Proposal}{2025-12-28}{2026-01-02} \\
+    \ganttbar[name=proposal_writing]{Proposal Writing}{2025-12-28}{2026-01-01} \\
+    \ganttmilestone[name=proposal_submission]{Proposal Submission}{2026-01-02} \\
+
+    % 4. Development Phase
+    \ganttgroup{4. Development}{2026-01-03}{2026-03-10} \\
+    \ganttbar[name=backend_setup]{Backend Setup (Elysia.js)}{2026-01-03}{2026-01-15} \\
+    \ganttbar[name=database_impl]{Database Implementation}{2026-01-10}{2026-01-20} \\
+    \ganttbar[name=api_development]{API Development}{2026-01-18}{2026-02-05} \\
+    \ganttbar[name=monitoring_service]{Monitoring Service}{2026-02-01}{2026-02-20} \\
+    \ganttbar[name=frontend_dev]{Frontend Development}{2026-02-15}{2026-03-05} \\
+    \ganttbar[name=integration]{System Integration}{2026-03-01}{2026-03-10} \\
+
+    % 5. Testing and Documentation
+    \ganttgroup{5. Testing \& Documentation}{2026-03-05}{2026-03-28} \\
+    \ganttbar[name=testing]{Testing \& Bug Fixes}{2026-03-05}{2026-03-18} \\
+    \ganttbar[name=documentation]{Documentation}{2026-03-12}{2026-03-24} \\
+    \ganttbar[name=deployment]{Deployment}{2026-03-20}{2026-03-25} \\
+    \ganttbar[name=final_report]{Final Report}{2026-03-22}{2026-03-28} \\
+    \ganttmilestone[name=final_defense]{Final Defense}{2026-03-31} \\
+
+    % Dependencies - nice flow
+    \ganttlink{topic_selection}{problem_definition}
+    \ganttlink{problem_definition}{literature_review}
+    \ganttlink{literature_review}{requirement_analysis}
+    \ganttlink{requirement_analysis}{database_design}
+    \ganttlink{database_design}{architecture_design}
+    \ganttlink{architecture_design}{proposal_writing}
+    \ganttlink{proposal_writing}{proposal_submission}
+    \ganttlink{proposal_submission}{backend_setup}
+    \ganttlink{database_design}{database_impl}
+    \ganttlink{api_development}{monitoring_service}
+    \ganttlink{integration}{testing}
+    \ganttlink{final_report}{final_defense}
+
+\end{ganttchart}
+
+\end{document}

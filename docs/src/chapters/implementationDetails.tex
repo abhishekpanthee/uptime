@@ -1,6 +1,628 @@
 \chapter{IMPLEMENTATION DETAILS}
-Note: This begining of this chapter should be mid-point of your entire rport content. 
-The implementation detials and result part should approximately be 50-60\% of total content.
-Describe how design was translated to working system with sufficient detail for replication.
-Some relevant sections might be given below. You can heavilty customize based on your project type. 
+
+\section{Introduction}
+
+This chapter documents the implementation of the Uptime Tracker system, translating the architectural design into working code. The chapter covers project structure, database implementation, backend API development, frontend interface construction, and the monitoring service implementation. Code excerpts and explanations provide sufficient detail for understanding and replicating the system.
+
+\section{Project Structure}
+
+The project follows a monorepo structure organizing frontend and backend applications within a single repository:
+
+\begin{verbatim}
+uptime-tracker/
+├── apps/
+│   ├── frontend/          # Next.js application
+│   │   ├── app/           # App router pages
+│   │   ├── components/    # React components
+│   │   ├── lib/           # Utility functions
+│   │   └── public/        # Static assets
+│   └── backend/           # Elysia.js API server
+│       ├── src/
+│       │   ├── routes/    # API route handlers
+│       │   ├── services/  # Business logic
+│       │   ├── db.ts      # Database connection
+│       │   └── index.ts   # Server entry point
+│       └── package.json
+├── package.json           # Root workspace config
+└── README.md
+\end{verbatim}
+
+This structure enables shared tooling configuration while maintaining separation between frontend and backend concerns. Bun workspaces manage dependencies across both applications.
+
+\section{Database Implementation}
+
+\subsection{PostgreSQL Setup}
+
+The database is configured using standard PostgreSQL installation. Connection details are managed through environment variables for security:
+
+\begin{verbatim}
+DATABASE_URL=postgresql://user:password@localhost:5432/uptime_tracker
+\end{verbatim}
+
+\subsection{Schema Creation}
+
+The database schema is implemented through SQL migration scripts. The initial migration creates all required tables:
+
+\begin{verbatim}
+-- Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ownership table
+CREATE TABLE ownership (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    url VARCHAR(500) NOT NULL,
+    is_public BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Analytics table (raw ping data)
+CREATE TABLE analytics (
+    id SERIAL PRIMARY KEY,
+    url VARCHAR(500) NOT NULL,
+    ping_ms INTEGER,
+    status VARCHAR(10) NOT NULL,
+    checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Hourly averages
+CREATE TABLE avg_hour (
+    id SERIAL PRIMARY KEY,
+    url VARCHAR(500) NOT NULL,
+    hour_start TIMESTAMP NOT NULL,
+    avg_ping_ms DECIMAL(10,2),
+    uptime_percent DECIMAL(5,2) NOT NULL,
+    check_count INTEGER NOT NULL,
+    UNIQUE(url, hour_start)
+);
+
+-- Daily averages
+CREATE TABLE avg_day (
+    id SERIAL PRIMARY KEY,
+    url VARCHAR(500) NOT NULL,
+    date DATE NOT NULL,
+    avg_ping_ms DECIMAL(10,2),
+    min_ping_ms INTEGER,
+    max_ping_ms INTEGER,
+    uptime_percent DECIMAL(5,2) NOT NULL,
+    UNIQUE(url, date)
+);
+
+-- Indexes for performance
+CREATE INDEX idx_analytics_url ON analytics(url);
+CREATE INDEX idx_analytics_checked_at ON analytics(checked_at);
+CREATE INDEX idx_ownership_user_id ON ownership(user_id);
+\end{verbatim}
+
+\subsection{Database Connection Module}
+
+The backend uses a connection pool for efficient database access:
+
+\begin{verbatim}
+// db.ts
+import { Pool } from 'pg';
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+});
+
+export const query = (text: string, params?: any[]) => {
+    return pool.query(text, params);
+};
+
+export const getClient = () => pool.connect();
+\end{verbatim}
+
+\section{Backend Implementation}
+
+\subsection{Server Setup}
+
+The Elysia.js server is configured with necessary middleware and plugins:
+
+\begin{verbatim}
+// index.ts
+import { Elysia } from 'elysia';
+import { cors } from '@elysiajs/cors';
+import { authRoutes } from './routes/auth';
+import { websiteRoutes } from './routes/websites';
+import { statusRoutes } from './routes/status';
+
+const app = new Elysia()
+    .use(cors({
+        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        credentials: true
+    }))
+    .use(authRoutes)
+    .use(websiteRoutes)
+    .use(statusRoutes)
+    .listen(process.env.PORT || 4000);
+
+console.log(`Server running on port ${app.server?.port}`);
+\end{verbatim}
+
+\subsection{Authentication Implementation}
+
+User authentication uses bcrypt for password hashing and JWT for session tokens:
+
+\begin{verbatim}
+// routes/auth.ts
+import { Elysia, t } from 'elysia';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { query } from '../db';
+
+export const authRoutes = new Elysia({ prefix: '/api/auth' })
+    .post('/register', async ({ body }) => {
+        const { email, password, name } = body;
+        
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+        
+        // Insert user
+        const result = await query(
+            'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id',
+            [email, passwordHash, name]
+        );
+        
+        return { success: true, userId: result.rows[0].id };
+    }, {
+        body: t.Object({
+            email: t.String({ format: 'email' }),
+            password: t.String({ minLength: 8 }),
+            name: t.String({ minLength: 1 })
+        })
+    })
+    .post('/login', async ({ body }) => {
+        const { email, password } = body;
+        
+        // Find user
+        const result = await query(
+            'SELECT id, password_hash, name FROM users WHERE email = $1',
+            [email]
+        );
+        
+        if (result.rows.length === 0) {
+            throw new Error('Invalid credentials');
+        }
+        
+        const user = result.rows[0];
+        const validPassword = await bcrypt.compare(password, user.password_hash);
+        
+        if (!validPassword) {
+            throw new Error('Invalid credentials');
+        }
+        
+        // Generate JWT
+        const token = jwt.sign(
+            { userId: user.id, email },
+            process.env.JWT_SECRET!,
+            { expiresIn: '7d' }
+        );
+        
+        return { token, user: { id: user.id, name: user.name, email } };
+    });
+\end{verbatim}
+
+\subsection{Website Management Routes}
+
+Routes for managing monitored websites implement CRUD operations:
+
+\begin{verbatim}
+// routes/websites.ts
+export const websiteRoutes = new Elysia({ prefix: '/api/websites' })
+    .derive(({ headers }) => {
+        // JWT verification middleware
+        const token = headers.authorization?.replace('Bearer ', '');
+        if (!token) throw new Error('Unauthorized');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        return { userId: decoded.userId };
+    })
+    .get('/', async ({ userId }) => {
+        const result = await query(
+            `SELECT o.*, 
+                    (SELECT status FROM analytics WHERE url = o.url 
+                     ORDER BY checked_at DESC LIMIT 1) as current_status,
+                    (SELECT ping_ms FROM analytics WHERE url = o.url 
+                     ORDER BY checked_at DESC LIMIT 1) as latest_ping
+             FROM ownership o WHERE user_id = $1`,
+            [userId]
+        );
+        return result.rows;
+    })
+    .post('/', async ({ body, userId }) => {
+        const { url, isPublic } = body;
+        const result = await query(
+            'INSERT INTO ownership (user_id, url, is_public) VALUES ($1, $2, $3) RETURNING *',
+            [userId, url, isPublic || false]
+        );
+        return result.rows[0];
+    })
+    .delete('/:id', async ({ params, userId }) => {
+        await query(
+            'DELETE FROM ownership WHERE id = $1 AND user_id = $2',
+            [params.id, userId]
+        );
+        return { success: true };
+    });
+\end{verbatim}
+
+\subsection{Status and Analytics Routes}
+
+Public status endpoints serve data for status pages:
+
+\begin{verbatim}
+// routes/status.ts
+export const statusRoutes = new Elysia({ prefix: '/api' })
+    .get('/public/status', async () => {
+        const result = await query(`
+            SELECT o.url, o.created_at,
+                   a.status, a.ping_ms, a.checked_at
+            FROM ownership o
+            LEFT JOIN LATERAL (
+                SELECT status, ping_ms, checked_at
+                FROM analytics
+                WHERE url = o.url
+                ORDER BY checked_at DESC
+                LIMIT 1
+            ) a ON true
+            WHERE o.is_public = true
+        `);
+        return result.rows;
+    })
+    .get('/analytics/:url', async ({ params, query: q }) => {
+        const url = decodeURIComponent(params.url);
+        const period = q.period || '24h';
+        
+        let interval = '24 hours';
+        if (period === '7d') interval = '7 days';
+        if (period === '30d') interval = '30 days';
+        
+        const result = await query(`
+            SELECT checked_at, ping_ms, status
+            FROM analytics
+            WHERE url = $1 AND checked_at > NOW() - INTERVAL '${interval}'
+            ORDER BY checked_at ASC
+        `, [url]);
+        
+        return result.rows;
+    });
+\end{verbatim}
+
+\section{Monitoring Service Implementation}
+
+\subsection{Scheduler Setup}
+
+The monitoring service runs as a separate process using a simple interval-based scheduler:
+
+\begin{verbatim}
+// monitor.ts
+import { query } from './db';
+
+const CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+async function checkWebsite(url: string) {
+    const startTime = Date.now();
+    
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            signal: AbortSignal.timeout(30000)
+        });
+        
+        const pingMs = Date.now() - startTime;
+        const status = response.ok ? 'up' : 'down';
+        
+        await query(
+            'INSERT INTO analytics (url, ping_ms, status) VALUES ($1, $2, $3)',
+            [url, pingMs, status]
+        );
+        
+        console.log(`[${new Date().toISOString()}] ${url}: ${status} (${pingMs}ms)`);
+    } catch (error) {
+        await query(
+            'INSERT INTO analytics (url, ping_ms, status) VALUES ($1, NULL, $2)',
+            [url, 'down']
+        );
+        console.log(`[${new Date().toISOString()}] ${url}: down (error)`);
+    }
+}
+
+async function runChecks() {
+    const result = await query('SELECT DISTINCT url FROM ownership');
+    const urls = result.rows.map(row => row.url);
+    
+    console.log(`Running checks for ${urls.length} websites...`);
+    
+    await Promise.all(urls.map(url => checkWebsite(url)));
+    
+    await updateHourlyAverages();
+}
+
+async function updateHourlyAverages() {
+    await query(`
+        INSERT INTO avg_hour (url, hour_start, avg_ping_ms, uptime_percent, check_count)
+        SELECT 
+            url,
+            DATE_TRUNC('hour', checked_at) as hour_start,
+            AVG(ping_ms) as avg_ping_ms,
+            (COUNT(*) FILTER (WHERE status = 'up')::DECIMAL / COUNT(*) * 100) as uptime_percent,
+            COUNT(*) as check_count
+        FROM analytics
+        WHERE checked_at > NOW() - INTERVAL '1 hour'
+        GROUP BY url, DATE_TRUNC('hour', checked_at)
+        ON CONFLICT (url, hour_start) DO UPDATE SET
+            avg_ping_ms = EXCLUDED.avg_ping_ms,
+            uptime_percent = EXCLUDED.uptime_percent,
+            check_count = EXCLUDED.check_count
+    `);
+}
+
+// Start monitoring loop
+setInterval(runChecks, CHECK_INTERVAL);
+runChecks(); // Initial run
+\end{verbatim}
+
+\section{Frontend Implementation}
+
+\subsection{Application Structure}
+
+The Next.js application uses the App Router with the following page structure:
+
+\begin{verbatim}
+app/
+├── layout.tsx          # Root layout with providers
+├── page.tsx            # Landing page
+├── login/page.tsx      # Login form
+├── register/page.tsx   # Registration form
+├── dashboard/
+│   ├── page.tsx        # Main dashboard
+│   └── [url]/page.tsx  # Website detail view
+├── add/page.tsx        # Add website form
+└── status/page.tsx     # Public status page
+\end{verbatim}
+
+\subsection{Authentication Context}
+
+A React context manages authentication state across the application:
+
+\begin{verbatim}
+// contexts/AuthContext.tsx
+'use client';
+import { createContext, useContext, useState, useEffect } from 'react';
+
+interface AuthContextType {
+    user: User | null;
+    token: string | null;
+    login: (email: string, password: string) => Promise<void>;
+    logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
+    
+    useEffect(() => {
+        const savedToken = localStorage.getItem('token');
+        if (savedToken) {
+            setToken(savedToken);
+            // Fetch user data
+        }
+    }, []);
+    
+    const login = async (email: string, password: string) => {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('token', data.token);
+    };
+    
+    const logout = () => {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('token');
+    };
+    
+    return (
+        <AuthContext.Provider value={{ user, token, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+\end{verbatim}
+
+\subsection{Dashboard Component}
+
+The dashboard displays website status cards in a responsive grid:
+
+\begin{verbatim}
+// app/dashboard/page.tsx
+'use client';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import WebsiteCard from '@/components/WebsiteCard';
+
+export default function Dashboard() {
+    const { token } = useAuth();
+    const [websites, setWebsites] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        fetchWebsites();
+    }, [token]);
+    
+    const fetchWebsites = async () => {
+        const response = await fetch('/api/websites', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+        setWebsites(data);
+        setLoading(false);
+    };
+    
+    if (loading) return <div>Loading...</div>;
+    
+    return (
+        <div className="container mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-6">Your Websites</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {websites.map(website => (
+                    <WebsiteCard key={website.id} website={website} />
+                ))}
+            </div>
+        </div>
+    );
+}
+\end{verbatim}
+
+\subsection{Status Card Component}
+
+Individual website cards show current status and key metrics:
+
+\begin{verbatim}
+// components/WebsiteCard.tsx
+interface WebsiteCardProps {
+    website: {
+        url: string;
+        current_status: string;
+        latest_ping: number;
+    };
+}
+
+export default function WebsiteCard({ website }: WebsiteCardProps) {
+    const statusColor = website.current_status === 'up' 
+        ? 'bg-green-500' 
+        : 'bg-red-500';
+    
+    return (
+        <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center gap-2 mb-2">
+                <div className={`w-3 h-3 rounded-full ${statusColor}`} />
+                <span className="font-medium truncate">{website.url}</span>
+            </div>
+            <div className="text-sm text-gray-600">
+                <p>Status: {website.current_status || 'Unknown'}</p>
+                <p>Response: {website.latest_ping ? `${website.latest_ping}ms` : 'N/A'}</p>
+            </div>
+        </div>
+    );
+}
+\end{verbatim}
+
+\subsection{Response Time Chart}
+
+Historical data visualization uses a charting library:
+
+\begin{verbatim}
+// components/ResponseChart.tsx
+'use client';
+import { Line } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
+
+export default function ResponseChart({ data }) {
+    const chartData = {
+        labels: data.map(d => new Date(d.checked_at).toLocaleTimeString()),
+        datasets: [{
+            label: 'Response Time (ms)',
+            data: data.map(d => d.ping_ms),
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true,
+            tension: 0.3
+        }]
+    };
+    
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'ms' } }
+        }
+    };
+    
+    return <Line data={chartData} options={options} />;
+}
+\end{verbatim}
+
+\section{Styling Implementation}
+
+The frontend uses Tailwind CSS for styling with a clean, functional design. Global styles define the color scheme and typography:
+
+\begin{verbatim}
+/* globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-up: #22c55e;
+    --color-down: #ef4444;
+    --color-unknown: #9ca3af;
+}
+
+.status-up { color: var(--color-up); }
+.status-down { color: var(--color-down); }
+.status-unknown { color: var(--color-unknown); }
+\end{verbatim}
+
+\section{Environment Configuration}
+
+The application uses environment variables for configuration across environments:
+
+\begin{verbatim}
+# Backend .env
+DATABASE_URL=postgresql://user:pass@localhost:5432/uptime_tracker
+JWT_SECRET=your-secret-key-here
+PORT=4000
+FRONTEND_URL=http://localhost:3000
+
+# Frontend .env.local
+NEXT_PUBLIC_API_URL=http://localhost:4000
+\end{verbatim}
+
+\section{Running the Application}
+
+Development commands for starting the system:
+
+\begin{verbatim}
+# Install dependencies
+bun install
+
+# Start database (assuming PostgreSQL is installed)
+# Run migrations
+psql -d uptime_tracker -f migrations/001_init.sql
+
+# Start backend
+cd apps/backend && bun run dev
+
+# Start frontend (separate terminal)
+cd apps/frontend && bun run dev
+
+# Start monitoring service (separate terminal)
+cd apps/backend && bun run monitor.ts
+\end{verbatim}
+
+\section{Summary}
+
+This chapter documented the implementation of key system components including database schema, backend API routes, monitoring service, and frontend interface. The implementation follows the architectural design while making practical decisions for code organization, error handling, and user experience. The modular structure enables independent testing and future enhancements to individual components.
 

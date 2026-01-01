@@ -1,143 +1,166 @@
-% include the page wise photos of plagarism summary document:
-\chapter{MATHEMATICAL DERIVATIONS}
-You can include the Derivation and mathematical part of your project that is not necessary to be included in the main report here. To provide reader with the complete mathematical background of your project, you can include the derivations, proofs, and detailed explanations of theorems or formulas used in your project. and then you can cross reference them in the main report.
-\section{Proof of Theorem 1:} Convex Optimization Problem can be solved using Gradient Descent Method.
-\section{Proof of Theorem 2:} Convergence of Gradient Descent Method for Convex Functions.
-\section{Gaussian Distribution} 
-The Gaussian distribution, also known as the normal distribution, is a continuous probability distribution characterized by its bell-shaped curve. It is defined by its mean ($\mu$) and standard deviation ($\sigma$). The probability density function (PDF) of a Gaussian distribution is given by:
-\[
-f(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right).
-\]
-
-
-
+% =====================
+% APPENDIX A: PROJECT BUDGET
+% =====================
 \chapter{PROJECT BUDGET}
-The total budget required for the successful completion of the project is estimated to be between \$330 and \$390. This budget covers various aspects of the project, including hardware purchases, component materials, software services, and miscellaneous expenses.
 
-\section{Development Equipment}
-This section lists essential hardware and tools that must be purchased for development and testing. These are items not available in the lab or not part of the final product, but necessary for the project.
+The total budget required for the successful completion of the Uptime Tracker project is estimated to be between NPR 5,000 and NPR 10,000. Since this is a software-based project, the costs are primarily associated with cloud services, domain registration, and miscellaneous documentation expenses.
 
-\begin{table}[H]
-    \centering
-    \small
-    \caption{Development Equipment Cost}
-    \begin{tabular}{p{3cm}p{4cm}ccc}
-        \toprule
-        \textbf{Item}                         & \textbf{Specification}      & \textbf{Qty} & \textbf{Unit Cost} & \textbf{Total} \\
-        \midrule
-        Development Board                     & Raspberry Pi 4 (4GB)        & 1            & \$55               & \$55           \\
-        Testing Equipment                     & Digital Multimeter          & 1            & \$25               & \$25           \\
-        Sensors                               & Temperature/Humidity Sensor & 2            & \$10               & \$20           \\
-        \midrule
-        \multicolumn{4}{r}{\textbf{Subtotal}} & \textbf{\$100}                                                                   \\
-        \bottomrule
-    \end{tabular}
-    \label{tab:dev_equipment}
-\end{table}
+\section{Software and Development Tools}
 
-\textit{Note: Replace the example entries above with actual equipment needed for your project.}
-
-\section{Bill of Materials (BOM)}
-Keep this only if relevant to your project.
-This section details all components that will be integrated into the final product/system. These are the materials that constitute the deliverable hardware (if any).
+All development tools used in this project are open-source and free:
 
 \begin{table}[H]
     \centering
     \small
-    \caption{Bill of Materials}
-    \begin{tabular}{p{3cm}p{4cm}ccc}
+    \caption{Development Tools (No Cost)}
+    \begin{tabular}{p{4cm}p{6cm}p{2.5cm}}
         \toprule
-        \textbf{Component}                    & \textbf{Specification} & \textbf{Qty} & \textbf{Unit Cost} & \textbf{Total} \\
+        \textbf{Tool} & \textbf{Description} & \textbf{Cost} \\
         \midrule
-        Microcontroller                       & ESP32 DevKit           & 1            & \$10               & \$10           \\
-        Sensor                                & DHT22 Sensor           & 2            & \$5                & \$10           \\
-        Actuator                              & Servo Motor SG90       & 2            & \$3                & \$6            \\
-        Power Supply                          & 5V/2A Adapter          & 1            & \$8                & \$8            \\
-        PCB                                   & Custom PCB (100x100mm) & 1            & \$15               & \$15           \\
-        Enclosure                             & ABS Plastic Box        & 1            & \$12               & \$12           \\
+        Bun Runtime & JavaScript/TypeScript runtime & Free \\
+        Next.js & React framework for frontend & Free \\
+        Elysia.js & Backend web framework & Free \\
+        PostgreSQL & Open-source database & Free \\
+        Visual Studio Code & Code editor & Free \\
+        Git & Version control system & Free \\
+        Tailwind CSS & CSS framework & Free \\
         \midrule
-        \multicolumn{4}{r}{\textbf{Subtotal}} & \textbf{\$61}                                                               \\
+        \multicolumn{2}{r}{\textbf{Subtotal}} & \textbf{Free} \\
         \bottomrule
     \end{tabular}
-    \label{tab:bom}
+    \label{tab:dev_tools}
 \end{table}
 
-\textit{Note: Replace the example entries above with actual components for your project.}
+\section{Hosting and Cloud Services}
 
-\section{Software and Cloud Services}
-This section covers all software tools, cloud computing resources, and subscription services required for the project.
+For deployment and hosting, the following services may be required:
 
 \begin{table}[H]
     \centering
     \small
-    \caption{Software and Cloud Services Cost}
-    \begin{tabular}{p{3.5cm}p{5cm}p{2.5cm}}
+    \caption{Hosting and Cloud Services Cost}
+    \begin{tabular}{p{4cm}p{5cm}p{3cm}}
         \toprule
-        \textbf{Service}                              & \textbf{Description}                            & \textbf{Cost} \\
+        \textbf{Service} & \textbf{Description} & \textbf{Estimated Cost} \\
         \midrule
-        Open-Source Software                          & Python, NumPy, SciPy, TensorFlow, PyTorch, etc. & Free          \\
-        Cloud Computing                               & Google Colab Pro (GPU access for training)      & \$10/month    \\
-        Cloud Storage                                 & Google Drive (100GB)                            & \$2/month     \\
-        API Services                                  & Third-party API usage (if applicable)           & \$15          \\
-        IEEE Access                                   & Student subscription for research papers        & \$15          \\
+        Domain Registration & .com or .np domain (1 year) & NPR 1,500 - 2,500 \\
+        VPS Hosting & Basic cloud server (3 months) & NPR 2,000 - 4,000 \\
+        PostgreSQL Hosting & Managed database (optional) & Free tier available \\
+        SSL Certificate & Let's Encrypt & Free \\
         \midrule
-        \multicolumn{2}{r}{\textbf{Total (3 months)}} & \textbf{\$66}                                                   \\
+        \multicolumn{2}{r}{\textbf{Subtotal}} & \textbf{NPR 3,500 - 6,500} \\
         \bottomrule
     \end{tabular}
-    \label{tab:software_services}
+    \label{tab:hosting_services}
 \end{table}
 
-\textit{Note: Adjust the entries above based on your actual software and service requirements.}
+\textit{Note: Free-tier options from Vercel (frontend), Railway (backend), and Supabase (database) can reduce hosting costs to zero during development and initial deployment.}
 
-\section{Miscellaneous Expenses}
-This section includes other project-related costs such as documentation, printing, and administrative expenses.
-
-The complete budget estimation is shown in \cref{tab:cost_estimation_cloud}. The budget is designed to ensure that all required resources are available for the successful completion of the project.
-
-
-This expense breakdown in \cref{tab:cost_estimation_cloud} incorporates the first half of the project.
-
-\textbf{Note:} All tables in this document use the \texttt{booktabs} package for professional table formatting, as per IEEE style guidelines. Use \verb|\toprule|, \verb|\midrule|, and \verb|\bottomrule| instead of \verb|\hline| for better visual appearance.
+\section{Documentation and Miscellaneous}
 
 \begin{table}[H]
     \centering
     \small
-    \caption{Estimated Cost Breakdown}
-    \begin{tabular}{p{2.7cm}p{6.5cm}p{2.5cm}}
+    \caption{Miscellaneous Expenses}
+    \begin{tabular}{p{4cm}p{6cm}p{2.5cm}}
         \toprule
-        \textbf{Category}                                 & \textbf{Item/Description}                                                                                             & \textbf{Estimated Cost}     \\
+        \textbf{Item} & \textbf{Description} & \textbf{Estimated Cost} \\
         \midrule
-        Software                                          & Python, NumPy, SciPy, DEAP, SQLite, Matplotlib, Seaborn, Gym (for RL), and other required libraries (all open-source) & Free                        \\
-        Cloud Computing                                   & \textbf{Google Cloud Platform (GCP)}: \newline
-        - NVIDIA T4: \$0.35/hour \newline
-        - NVIDIA V100: \$2.48/hour \newline
-        - NVIDIA A100 (40GB): \$4.27/hour \newline
-        \textbf{Google Colab Pro}: \newline
-        - \$9.99/month for 100 compute units \newline
-        - Approx. 13 units/hour for A100 usage            & Estimated \$300-\$350                                                                                                                               \\
-        IEEE Access                                       & Annual subscription for accessing IEEE research articles and journals                                                 & \$15 (student subscription) \\
-        Miscellaneous                                     & Printing, documentation, report binding                                                                               & \$15-\$25                   \\
+        Report Printing & Proposal and final report printing & NPR 500 - 1,000 \\
+        Report Binding & Spiral/hard binding & NPR 300 - 500 \\
+        Stationery & Paper, pens, notebooks & NPR 200 - 300 \\
+        Internet & Development period data usage & NPR 500 - 700 \\
         \midrule
-        \multicolumn{2}{l}{\textbf{Total Estimated Cost}} & \textbf{\$330-\$390}                                                                                                                                \\
+        \multicolumn{2}{r}{\textbf{Subtotal}} & \textbf{NPR 1,500 - 2,500} \\
         \bottomrule
     \end{tabular}
-    \label{tab:cost_estimation_cloud}
+    \label{tab:misc_expenses}
 \end{table}
 
+\section{Total Budget Summary}
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Total Estimated Budget}
+    \begin{tabular}{p{6cm}p{4cm}}
+        \toprule
+        \textbf{Category} & \textbf{Estimated Cost} \\
+        \midrule
+        Development Tools & Free \\
+        Hosting and Cloud Services & NPR 3,500 - 6,500 \\
+        Documentation and Miscellaneous & NPR 1,500 - 2,500 \\
+        \midrule
+        \textbf{Total Estimated Cost} & \textbf{NPR 5,000 - 9,000} \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:total_budget}
+\end{table}
+
+\textit{Note: The actual costs may vary depending on the hosting provider chosen and the duration of service usage. Using free-tier cloud services can significantly reduce the overall budget.}
+
+
+% =====================
+% APPENDIX B: PROJECT TIMELINE
+% =====================
 \chapter{PROJECT TIMELINE}
-The project will be executed over a period of approximately 6 months, divided into several key phases. Each phase includes specific tasks and milestones to ensure steady progress toward project completion.
-\section{Gantt Chart}
-gantt should clearly show the year month, week, and tasks with their durations and dependencies, with milestones also properly marked.
-This is the estimated timeline for the project, detailing the key phases and milestones. The project is structured into several stages, each with specific tasks and deliverables.
 
-\textbf{Gantt Chart Placeholder here:}
-\begin{figure}
+The project will be executed over a period of approximately 3 months, divided into several key phases. Each phase includes specific tasks and milestones to ensure steady progress toward project completion.
+
+\section{Project Schedule Overview}
+
+The project timeline spans from December 12, 2025 to March 31, 2026, covering the following major phases:
+
+\begin{enumerate}
+    \item \textbf{Project Initiation (Dec 12 - Dec 20):} Topic selection, problem definition, and literature review
+    \item \textbf{System Design (Dec 18 - Dec 30):} Requirements analysis, database design, and architecture design
+    \item \textbf{Proposal Preparation (Dec 28 - Jan 2):} Proposal writing and submission
+    \item \textbf{Proposal Submission:} January 2, 2026
+    \item \textbf{Development (Jan 3 - Mar 10):} Backend development, frontend development, monitoring service implementation, and system integration
+    \item \textbf{Testing \& Documentation (Mar 5 - Mar 28):} Testing, bug fixes, deployment, and final report preparation
+    \item \textbf{Final Defense:} March 31, 2026
+\end{enumerate}
+
+\section{Gantt Chart}
+
+The Gantt chart in Figure \ref{fig:gantt_chart} provides a visual representation of the project timeline, showing task durations, dependencies, and key milestones.
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{src/images/figures/gantt.png} % Replace with actual path to Gantt chart image
+    \includegraphics[width=\textwidth]{src/images/gantt/gantt.pdf}
     \caption{Project Gantt Chart}
     \label{fig:gantt_chart}
 \end{figure}
 
+\section{Milestone Summary}
 
-\chapter{PLAGARISM SUMMARY}
-Keep all the pages of the plagarism summary document provided by the university here. It can run for multiple pages.
+Key project milestones are summarized in Table \ref{tab:milestones}:
+
+\begin{table}[H]
+    \centering
+    \caption{Project Milestones}
+    \begin{tabular}{llp{6cm}}
+        \toprule
+        \textbf{Milestone} & \textbf{Target Date} & \textbf{Deliverable} \\
+        \midrule
+        Project Start & December 12, 2025 & Topic selection and planning \\
+        Design Complete & December 30, 2025 & Database schema and architecture \\
+        Proposal Submission & January 2, 2026 & Complete project proposal \\
+        Backend Complete & February 15, 2026 & Working API and monitoring service \\
+        Development Complete & March 10, 2026 & Fully integrated application \\
+        Final Report & March 28, 2026 & Complete project documentation \\
+        Final Defense & March 31, 2026 & Project presentation and demo \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:milestones}
+\end{table}
+
+\section{Risk Mitigation Timeline}
+
+Buffer time has been allocated for potential delays:
+
+\begin{itemize}
+    \item 3-day buffer between major development phases
+    \item Parallel documentation to avoid end-of-project crunch
+    \item Early integration testing to identify issues before final phase
+\end{itemize}

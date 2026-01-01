@@ -1,41 +1,274 @@
 \chapter{REQUIREMENTS ANALYSIS}
 \label{chap:requirements}
 
+\section{Introduction}
+
+Requirements analysis forms the foundation of software development by defining what the system must accomplish and the constraints within which it must operate. This chapter documents the functional requirements specifying system capabilities, non-functional requirements defining quality attributes, and technical requirements outlining the development and deployment environment. These requirements guide design decisions and provide criteria for evaluating the completed system.
+
 \section{Functional Requirements}
 
-\begin{itemize}
-    \item Users can create accounts and log in securely.
-    \item Users can add their websites to be monitored.
-    \item The system checks each website every 5 minutes automatically.
-    \item Each check records whether the site is up and how fast it responds.
-    \item The system calculates average uptime per hour and per day.
-    \item Anyone can view public status pages showing website health.
-    \item Users see a dashboard with charts and uptime history.
-    \item Users can choose to make their monitors public or private.
-\end{itemize}
+Functional requirements specify the behaviors and features the Uptime Tracker system must provide to users. These requirements are organized by functional area.
+
+\subsection{User Management}
+
+\begin{enumerate}
+    \item \textbf{FR-U1: User Registration} \\
+    The system shall allow new users to create accounts by providing a valid email address and password. Registration shall validate email format and enforce minimum password complexity requirements.
+    
+    \item \textbf{FR-U2: User Authentication} \\
+    The system shall authenticate users via email and password credentials. Upon successful authentication, the system shall issue a session token for subsequent requests.
+    
+    \item \textbf{FR-U3: Session Management} \\
+    The system shall maintain user sessions with configurable timeout periods. Users shall be able to explicitly log out, invalidating their session tokens.
+    
+    \item \textbf{FR-U4: Password Security} \\
+    The system shall store passwords using industry-standard hashing algorithms. Plain text passwords shall never be stored or logged.
+\end{enumerate}
+
+\subsection{Website Management}
+
+\begin{enumerate}
+    \item \textbf{FR-W1: Website Registration} \\
+    Authenticated users shall be able to add websites for monitoring by providing a valid URL. The system shall validate URL format before accepting registration.
+    
+    \item \textbf{FR-W2: Ownership Association} \\
+    Each registered website shall be associated with the user who added it. Only the owner shall be able to modify or delete their website registrations.
+    
+    \item \textbf{FR-W3: Visibility Control} \\
+    Website owners shall be able to set their monitored websites as public or private. Public websites appear on status pages accessible to anyone, while private websites are visible only to their owners.
+    
+    \item \textbf{FR-W4: Website Editing} \\
+    Users shall be able to update the URL or visibility settings of their registered websites.
+    
+    \item \textbf{FR-W5: Website Deletion} \\
+    Users shall be able to remove websites from monitoring. Deletion shall remove the website record and associated monitoring data.
+\end{enumerate}
+
+\subsection{Monitoring Functionality}
+
+\begin{enumerate}
+    \item \textbf{FR-M1: Automated Checks} \\
+    The system shall automatically perform availability checks on all registered websites at 5-minute intervals without manual intervention.
+    
+    \item \textbf{FR-M2: HTTP/HTTPS Support} \\
+    The system shall support monitoring of both HTTP and HTTPS URLs. For HTTPS URLs, the system shall verify that the site responds successfully.
+    
+    \item \textbf{FR-M3: Response Time Measurement} \\
+    Each availability check shall measure and record the response time in milliseconds from request initiation to response completion.
+    
+    \item \textbf{FR-M4: Status Determination} \\
+    The system shall determine website status based on HTTP response codes. Status codes 200-299 shall be considered successful (up), while other codes or connection failures shall be considered unsuccessful (down).
+    
+    \item \textbf{FR-M5: Data Recording} \\
+    Each check result shall be recorded with the website identifier, timestamp, response time, and success/failure status.
+\end{enumerate}
+
+\subsection{Data Aggregation}
+
+\begin{enumerate}
+    \item \textbf{FR-A1: Hourly Aggregation} \\
+    The system shall calculate and store hourly statistics for each website including average response time and uptime percentage for each hour.
+    
+    \item \textbf{FR-A2: Daily Aggregation} \\
+    The system shall calculate and store daily statistics including average response time, minimum response time, maximum response time, and overall uptime percentage.
+    
+    \item \textbf{FR-A3: Historical Retention} \\
+    The system shall retain aggregated data for historical analysis. Raw ping data may be pruned after aggregation while aggregate data shall be retained long-term.
+\end{enumerate}
+
+\subsection{User Interface}
+
+\begin{enumerate}
+    \item \textbf{FR-I1: Dashboard View} \\
+    Authenticated users shall have access to a dashboard displaying the current status of all their monitored websites at a glance.
+    
+    \item \textbf{FR-I2: Status Indicators} \\
+    The interface shall clearly indicate website status using visual cues (colors, icons) distinguishing between up, down, and unknown states.
+    
+    \item \textbf{FR-I3: Response Time Display} \\
+    The dashboard shall display current and historical response times with graphical visualizations showing trends over time.
+    
+    \item \textbf{FR-I4: Uptime Statistics} \\
+    The system shall display uptime percentages for configurable time periods (24 hours, 7 days, 30 days).
+    
+    \item \textbf{FR-I5: Public Status Page} \\
+    The system shall provide a publicly accessible status page showing the current status of all websites marked as public.
+\end{enumerate}
 
 \section{Non-Functional Requirements}
 
-\begin{itemize}
-    \item \textbf{Speed:} Pages and API calls load in under 500 milliseconds.
-    \item \textbf{Reliability:} The monitoring service runs 99\% of the time.
-    \item \textbf{Capacity:} The system can handle 100+ websites being monitored.
-    \item \textbf{Mobile-friendly:} The dashboard works well on phones and tablets.
-    \item \textbf{Security:} User passwords are encrypted before storing.
-\end{itemize}
+Non-functional requirements define quality attributes and constraints that govern how the system performs its functions.
+
+\subsection{Performance Requirements}
+
+\begin{enumerate}
+    \item \textbf{NFR-P1: Response Time} \\
+    Web pages and API endpoints shall respond within 500 milliseconds under normal load conditions.
+    
+    \item \textbf{NFR-P2: Concurrent Monitoring} \\
+    The system shall support monitoring of at least 100 websites simultaneously without degraded performance.
+    
+    \item \textbf{NFR-P3: Check Timing} \\
+    Monitoring checks shall execute within the scheduled interval with no more than 30 seconds variance from the expected check time.
+\end{enumerate}
+
+\subsection{Reliability Requirements}
+
+\begin{enumerate}
+    \item \textbf{NFR-R1: System Availability} \\
+    The monitoring service shall maintain at least 99\% uptime, ensuring consistent check execution.
+    
+    \item \textbf{NFR-R2: Data Integrity} \\
+    All recorded monitoring data shall be accurately stored without loss or corruption.
+    
+    \item \textbf{NFR-R3: Failure Recovery} \\
+    The system shall recover automatically from transient failures and resume normal operation without manual intervention.
+\end{enumerate}
+
+\subsection{Security Requirements}
+
+\begin{enumerate}
+    \item \textbf{NFR-S1: Authentication Security} \\
+    Passwords shall be hashed using bcrypt or equivalent algorithm with appropriate cost factor.
+    
+    \item \textbf{NFR-S2: Session Security} \\
+    Session tokens shall be generated using cryptographically secure random generation and transmitted only over HTTPS in production.
+    
+    \item \textbf{NFR-S3: Data Access Control} \\
+    Private monitoring data shall be accessible only to authenticated website owners. The system shall enforce authorization checks on all protected resources.
+    
+    \item \textbf{NFR-S4: Input Validation} \\
+    All user inputs shall be validated and sanitized to prevent injection attacks.
+\end{enumerate}
+
+\subsection{Usability Requirements}
+
+\begin{enumerate}
+    \item \textbf{NFR-U1: Responsive Design} \\
+    The web interface shall be responsive and functional on desktop browsers, tablets, and mobile devices.
+    
+    \item \textbf{NFR-U2: Intuitive Navigation} \\
+    Users shall be able to accomplish primary tasks (view status, add website) with minimal navigation steps.
+    
+    \item \textbf{NFR-U3: Clear Feedback} \\
+    The interface shall provide clear feedback for user actions including success confirmations and error messages.
+\end{enumerate}
+
+\subsection{Maintainability Requirements}
+
+\begin{enumerate}
+    \item \textbf{NFR-M1: Code Organization} \\
+    Source code shall be organized following established patterns with clear separation between frontend, backend, and database layers.
+    
+    \item \textbf{NFR-M2: Documentation} \\
+    Code shall include inline documentation for complex logic. API endpoints shall be documented with request/response specifications.
+\end{enumerate}
 
 \section{System Requirements}
 
 \subsection{Hardware Requirements}
-\begin{itemize}
-    \item \textbf{Minimum:} Any 64-bit computer with 4 GB RAM and 10 GB storage
-    \item \textbf{Recommended:} Dual-core processor, 8 GB RAM, SSD for faster performance
-\end{itemize}
+
+Table \ref{tab:hardware-requirements} specifies the hardware requirements for running the Uptime Tracker system:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Hardware Requirements}
+    \label{tab:hardware-requirements}
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Component} & \textbf{Minimum} & \textbf{Recommended} \\
+        \midrule
+        Processor & 64-bit dual-core CPU & 64-bit quad-core CPU \\
+        Memory & 4 GB RAM & 8 GB RAM \\
+        Storage & 10 GB available & 50 GB SSD \\
+        Network & Stable internet connection & Low-latency broadband \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \subsection{Software Requirements}
+
+The following software components are required for development and deployment:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Software Requirements}
+    \label{tab:software-requirements}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Component} & \textbf{Specification} \\
+        \midrule
+        Operating System & Windows 10/11, macOS 12+, or Linux \\
+        Runtime & Bun 1.0 or later \\
+        Database & PostgreSQL 14 or later \\
+        Browser & Chrome, Firefox, Safari, or Edge (current versions) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Development Tools}
+
 \begin{itemize}
-    \item Operating System: Windows, Linux, or macOS
-    \item Backend: Bun.js (JavaScript runtime)
-    \item Frontend: Next.js with React
-    \item Database: PostgreSQL
+    \item \textbf{IDE:} Visual Studio Code with TypeScript extensions
+    \item \textbf{Version Control:} Git for source code management
+    \item \textbf{Package Manager:} Bun package manager (npm compatible)
+    \item \textbf{Database Client:} pgAdmin or similar PostgreSQL management tool
 \end{itemize}
+
+\section{Use Case Specifications}
+
+\subsection{Use Case: Add Website for Monitoring}
+
+\begin{itemize}
+    \item \textbf{Actor:} Authenticated User
+    \item \textbf{Precondition:} User is logged into the system
+    \item \textbf{Main Flow:}
+    \begin{enumerate}
+        \item User navigates to the Add Website page
+        \item User enters the website URL
+        \item User selects visibility setting (public/private)
+        \item User submits the form
+        \item System validates the URL format
+        \item System creates ownership record
+        \item System confirms successful addition
+        \item Monitoring begins within the next check cycle
+    \end{enumerate}
+    \item \textbf{Postcondition:} Website is registered and will be monitored
+    \item \textbf{Alternative Flow:} If URL is invalid, system displays error message and returns to step 2
+\end{itemize}
+
+\subsection{Use Case: View Website Status}
+
+\begin{itemize}
+    \item \textbf{Actor:} Any User (public websites) or Authenticated User (private websites)
+    \item \textbf{Precondition:} Website has been registered for monitoring
+    \item \textbf{Main Flow:}
+    \begin{enumerate}
+        \item User navigates to status page or dashboard
+        \item System retrieves current status for requested websites
+        \item System displays status indicators, response times, and uptime percentages
+        \item User views historical data through graphs and statistics
+    \end{enumerate}
+    \item \textbf{Postcondition:} User has viewed website status information
+\end{itemize}
+
+\section{Requirements Traceability}
+
+Table \ref{tab:requirements-trace} maps high-level objectives to specific requirements:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Requirements Traceability Matrix}
+    \label{tab:requirements-trace}
+    \begin{tabular}{lp{8cm}}
+        \toprule
+        \textbf{Objective} & \textbf{Related Requirements} \\
+        \midrule
+        Automated monitoring & FR-M1, FR-M2, FR-M3, FR-M4, FR-M5 \\
+        Historical data storage & FR-A1, FR-A2, FR-A3, NFR-R2 \\
+        User dashboard & FR-I1, FR-I2, FR-I3, FR-I4, NFR-U1, NFR-U2 \\
+        User authentication & FR-U1, FR-U2, FR-U3, NFR-S1, NFR-S2 \\
+        Public status pages & FR-W3, FR-I5 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
