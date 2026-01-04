@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "bun run apps/backend/src/index.ts",
     "dev": "bun run --filter='*' dev",
     "dev:frontend": "bun run --filter=frontend dev",
     "dev:backend": "bun run --filter=backend dev",
