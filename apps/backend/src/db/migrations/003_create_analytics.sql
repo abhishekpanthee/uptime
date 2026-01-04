@@ -1,3 +1,4 @@
+-- Create analytics table (depends on ownership)
 CREATE TABLE IF NOT EXISTS analytics (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     website_url VARCHAR(254) NOT NULL,

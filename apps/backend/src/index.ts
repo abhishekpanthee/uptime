@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
-import { registerDbSchema } from "./db/schema_registery/initSchema";
+import { runMigrations } from "./auto_migrate.js";
 
 //registering schemas 
-await registerDbSchema();
+await runMigrations();
 
 
 const app = new Elysia()

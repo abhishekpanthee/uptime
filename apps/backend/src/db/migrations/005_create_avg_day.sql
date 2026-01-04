@@ -1,3 +1,4 @@
+-- Create average day table (depends on ownership)
 CREATE TABLE IF NOT EXISTS average_day (
     website_url VARCHAR(254) NOT NULL,
     day_id VARCHAR(8) NOT NULL,

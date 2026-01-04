@@ -1,3 +1,4 @@
+-- Create average hour table (depends on ownership)
 CREATE TABLE IF NOT EXISTS average_hr (
     website_url VARCHAR(254) NOT NULL,
     hour_id VARCHAR(10) NOT NULL,

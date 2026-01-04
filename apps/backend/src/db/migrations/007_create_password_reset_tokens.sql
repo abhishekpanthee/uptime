@@ -1,3 +1,4 @@
+-- Create password reset tokens table (depends on users)
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INTEGER NOT NULL,
