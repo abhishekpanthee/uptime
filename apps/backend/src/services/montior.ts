@@ -5,9 +5,9 @@ import { sql, eq, and } from 'drizzle-orm';
 
 export const monitorService = cron({
     name: 'uptime-check',
-    pattern: '*/5 * * * *', // Every 5 minutes
+    pattern: '* * * * *', // Runs every single minute
     async run() {
-        console.log('Running 5-minute check...');
+        console.log('Running 1-minute check...');
         const sites = await db.select().from(ownership);
 
         // Parallel HTTP Requests
