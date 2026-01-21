@@ -9,7 +9,7 @@
     "build": "bun build src/index.ts --outdir ./dist --target bun"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.0.0",
+    "@elysiajs/cors": "^1.4.1",
     "@elysiajs/cron": "^1.4.1",
     "@elysiajs/jwt": "^1.4.0",
     "drizzle-orm": "^0.45.1",
