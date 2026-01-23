@@ -1,6 +1,7 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
+import { createClient } from '@supabase/supabase-js'
 
-const client = postgres(Bun.env.DATABASE_URL!);
-export const db = drizzle(client, { schema });
+const supabase = createClient(Bun.env.SUPABASE_URL!, Bun.env.SUPABASE_PUBLISHABLE_KEY!, {
+  db: { schema: 'myschema' },
+})
+
+export const db=supabase

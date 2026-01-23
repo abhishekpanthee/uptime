@@ -1,7 +1,5 @@
 import { Elysia, t } from 'elysia';
 import { db } from '../db';
-import { ownership } from '../db/schema';
-import { eq, and } from 'drizzle-orm';
 import { jwt } from '@elysiajs/jwt';
 
 const getUserId = async (headers: any, jwt: any) => {
@@ -12,6 +10,8 @@ const getUserId = async (headers: any, jwt: any) => {
     return profile ? profile.id : null;
 };
 
+
+
 export const websites = new Elysia({ prefix: '/websites' })
     .use(jwt({ name: 'jwt', secret: process.env.JWT_SECRET! }))
 
@@ -19,14 +19,16 @@ export const websites = new Elysia({ prefix: '/websites' })
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
         
-        return await db.select().from(ownership).where(eq(ownership.owner_id, userId));
+        return await db.from('ownership').select('*').eq('owner_id', userId);
     })
 
+
+    // adding website 
     .post('/', async ({ headers, jwt, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        await db.insert(ownership).values({
+        await db.from('ownership').insert({
             website_url: body.url,
             owner_id: userId,
             is_public: body.is_public
@@ -36,25 +38,31 @@ export const websites = new Elysia({ prefix: '/websites' })
         body: t.Object({ url: t.String(), is_public: t.Boolean() })
     })
 
+    // website is_public change 
     .put('/:url', async ({ headers, jwt, params, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        const [updated] = await db.update(ownership)
-            .set({ is_public: body.is_public })
-            .where(and(eq(ownership.website_url, params.url), eq(ownership.owner_id, userId)))
-            .returning();
+        const {data,error} = await db.from('ownership')
+            .update({ is_public: body.is_public })
+            .eq('website_url', params.url)
+            .eq('owner_id', userId)
+            .select();
             
-        return updated || { error: "Not found" };
+        return data?.[0] || { error: "Not found" };
     }, {
         body: t.Object({ is_public: t.Boolean() })
     })
 
+
+    // delete website 
     .delete('/:url', async ({ headers, jwt, params, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        await db.delete(ownership)
-            .where(and(eq(ownership.website_url, params.url), eq(ownership.owner_id, userId)));
+        await db.from('ownership')
+            .delete()
+            .eq('website_url', params.url)
+            .eq('owner_id', userId);
         return { message: "Deleted" };
     });

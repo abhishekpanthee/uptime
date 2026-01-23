@@ -1,34 +1,48 @@
-import { Elysia } from 'elysia';
-import { db } from '../db';
-import { analytics, ownership } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { Elysia } from 'elysia'
+import { db } from '../db'
 
 export const analyticsRoutes = new Elysia()
 
-    .get('/status/:url', async ({ params }) => {
-        const decodedUrl = decodeURIComponent(params.url);
-        const [last] = await db.select()
-            .from(analytics)
-            .where(eq(analytics.website_url, decodedUrl))
-            .orderBy(desc(analytics.checked_at))
-            .limit(1);
-        return last || { status: 0, ping5: null };
-    })
+  // get last status
+  .get('/status/:url', async ({ params }) => {
+    const decodedUrl = decodeURIComponent(params.url)
 
-    .get('/analytics/:url', async ({ params }) => {
-        const decodedUrl = decodeURIComponent(params.url);
+    const { data, error } = await db
+      .from('analytics')
+      .select('*')
+      .eq('website_url', decodedUrl)
+      .order('checked_at', { ascending: false })
+      .limit(1)
 
-        console.log(`Fetching raw history for: ${decodedUrl}`);
+    if (error) throw error
 
-        return await db.select()
-            .from(analytics)
-            .where(eq(analytics.website_url, decodedUrl))
-            .orderBy(desc(analytics.checked_at))
-            .limit(50);
-    })
+    return data?.[0] ?? { status: 0, ping5: null }
+  })
 
-    .get('/public/status', async () => {
-        return await db.select()
-            .from(ownership)
-            .where(eq(ownership.is_public, true));
-    });
+  // get analytics history
+  .get('/analytics/:url', async ({ params }) => {
+    const decodedUrl = decodeURIComponent(params.url)
+
+    console.log(`Fetching raw history for: ${decodedUrl}`)
+
+    const { data, error } = await db
+      .from('analytics')
+      .select('*')
+      .eq('website_url', decodedUrl)
+      .order('checked_at', { ascending: false })
+      .limit(50)
+
+    if (error) throw error
+    return data
+  })
+
+  // get public websites
+  .get('/public/status', async () => {
+    const { data, error } = await db
+      .from('ownership')
+      .select('*')
+      .eq('is_public', true)
+
+    if (error) throw error
+    return data
+  })

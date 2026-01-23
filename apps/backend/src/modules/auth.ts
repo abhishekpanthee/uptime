@@ -1,31 +1,40 @@
 import { Elysia, t } from 'elysia';
 import { db } from '../db';
-import { users, refreshTokens } from '../db/schema';
-import { eq } from 'drizzle-orm';
 import { jwt } from '@elysiajs/jwt';
 
 export const auth = new Elysia({ prefix: '/auth' })
-    .use(jwt({ name: 'jwt', secret: process.env.JWT_SECRET! }))
+    .use(jwt({ name: 'jwt', secret: Bun.env.JWT_SECRET! }))
 
+
+    // register 
     .post('/register', async ({ body, set }) => {
         const hashedPassword = await Bun.password.hash(body.password);
         try {
-            await db.insert(users).values({
+            await db.from('users').insert({
                 name: body.name,
                 email: body.email,
                 password: hashedPassword,
-            });
+            })
             return { message: "User created" };
         } catch (e) {
             set.status = 400;
-            return { error: "Email exists" };
+            return { error: "Email already exists" };
         }
     }, {
         body: t.Object({ name: t.String(), email: t.String(), password: t.String() })
     })
 
+
+    // login
     .post('/login', async ({ body, set, jwt }) => {
-        const [user] = await db.select().from(users).where(eq(users.email, body.email));
+        const {data:users,error} = await db
+        .from('users')
+        .select()
+        .eq('email', body.email);
+
+        if (error){throw error}
+        const user = users?.[0];
+
         if (!user || !(await Bun.password.verify(body.password, user.password))) {
             set.status = 401;
             return { error: "Invalid credentials" };
@@ -34,21 +43,27 @@ export const auth = new Elysia({ prefix: '/auth' })
         const accessToken = await jwt.sign({ id: user.id });
         const refreshToken = crypto.randomUUID();
         
-        await db.insert(refreshTokens).values({
+        const { error: refreshError } = await db
+            .from('refresh_tokens')
+            .insert({
             user_id: user.id,
             token: refreshToken,
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        });
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        })
 
+        if (refreshError) {throw refreshError}
         return { accessToken, refreshToken };
     }, {
-        body: t.Object({ email: t.String(), password: t.String() })
+        body: t.Object({
+            email: t.String(),
+            password: t.String() })
     })
 
+    // logout
     .post('/logout', async ({ body }) => {
-        await db.update(refreshTokens)
-            .set({ revoked_at: new Date() })
-            .where(eq(refreshTokens.token, body.refreshToken));
+        await db.from('refresh_tokens')
+        .update({ revoked_at: new Date() })
+        .eq('token', body.refreshToken);
         return { message: "Logged out" };
     }, {
         body: t.Object({ refreshToken: t.String() })

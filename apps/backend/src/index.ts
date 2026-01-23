@@ -10,7 +10,7 @@ const app = new Elysia({ prefix: "/api" })
   .use(auth)
   .use(websites)
   .use(analyticsRoutes)
-  .use(monitorService)
+  // .use(monitorService)
   .listen(8000);
 
 console.log(`Uptime API running at ${app.server?.hostname}:${app.server?.port}`);
