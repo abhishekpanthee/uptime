@@ -12,7 +12,6 @@ async function runCheck() {
   console.log("Starting 1-minute check...");
 
   try {
-    // Get websites to monitor
     const { data: sites, error: fetchError } = await db
       .from("ownership")
       .select("*");
@@ -29,7 +28,6 @@ async function runCheck() {
       let ping: number | null = null;
 
       try {
-        // Ping website
         console.log(`Pinging ${site.website_url}...`);
         const res = await fetch(site.website_url, {
           method: "HEAD",
@@ -48,7 +46,6 @@ async function runCheck() {
       }
 
       try {
-        // Save ping result
         const { error: insertError } = await db
           .from("analytics")
           .insert(
