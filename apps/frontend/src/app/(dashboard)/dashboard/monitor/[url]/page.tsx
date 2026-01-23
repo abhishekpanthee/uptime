@@ -30,19 +30,27 @@ export default function MonitorDetailsPage() {
       try {
         const res = await api.get(`/analytics/${encodeURIComponent(rawUrl)}`);
         
-        const formattedData = res.data
+        const rawData = Array.isArray(res.data) ? res.data : [];
+
+        const formattedData = rawData
           .map((item: any) => {
+            if (!item) return null;
+
             const val = item.ping5 ?? item.ping ?? null;
-            const dateStr = (item.checked_at ?? item.created_at).toString();
-            const localDateString = dateStr.endsWith("Z") ? dateStr.slice(0, -1) : dateStr;
+            let rawDate = item.checked_at ?? item.created_at;
+            if (!rawDate) return null;
+            if (typeof rawDate === 'string' && !rawDate.endsWith('Z')) {
+               rawDate += 'Z';
+            }
+            const dateObj = new Date(rawDate);
 
             return {
-              time: new Date(localDateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              time: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               ping: val !== null ? Number(val) : null 
             };
           })
-          .filter((item: any) => item.ping !== null && !isNaN(item.ping))
-          .reverse(); 
+          .filter((item: any) => item !== null && item.ping !== null && !isNaN(item.ping))
+          .reverse();
         
         setHistory(formattedData);
       } catch (error) {
@@ -53,12 +61,16 @@ export default function MonitorDetailsPage() {
     }
 
     fetchData();
-    const interval = setInterval(fetchData, 10000);
+    const interval = setInterval(fetchData, 10000); // Poll every 10s
     return () => clearInterval(interval);
   }, [rawUrl]);
 
   const lastItem = history.length > 0 ? history[history.length - 1] : null;
   const currentPing = lastItem ? lastItem.ping : null;
+
+  const validPings = history.filter(h => h.ping !== null);
+  const totalPing = validPings.reduce((sum, h) => sum + h.ping, 0);
+  const avgPing = validPings.length > 0 ? Math.round(totalPing / validPings.length) : 0;
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -81,7 +93,7 @@ export default function MonitorDetailsPage() {
                   </span>
                   <span className="flex items-center">
                     <Clock className="w-3.5 h-3.5 mr-1" />
-                    Updates every min
+                    Updates every 10s
                   </span>
                </div>
              </div>
@@ -102,7 +114,7 @@ export default function MonitorDetailsPage() {
         />
         <StatCard 
           label="Average (24h)" 
-          value={currentPing !== null ? "Calculating..." : "--"} 
+          value={validPings.length > 0 ? `${avgPing}ms` : "--"} 
           icon={<Clock className="w-5 h-5" />}
         />
         <StatCard 

@@ -1,7 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(Bun.env.SUPABASE_URL!, Bun.env.SUPABASE_PUBLISHABLE_KEY!, {
-  db: { schema: 'myschema' },
-})
+const supabaseUrl = Bun.env.SUPABASE_URL!;
+const supabaseKey = Bun.env.SUPABASE_SERVICE_KEY!; 
 
-export const db=supabase
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in .env file");
+}
+
+export const db = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false,
+  }
+})
