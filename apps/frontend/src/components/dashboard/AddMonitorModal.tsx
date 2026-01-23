@@ -7,7 +7,7 @@ import { X, Loader2 } from "lucide-react";
 interface AddMonitorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void; // To refresh the list after adding
+  onSuccess: () => void;
 }
 
 export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalProps) {
@@ -27,7 +27,7 @@ export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalP
     try {
       await api.post("/websites", { 
         url, 
-        is_public: false // Default to private
+        is_public: false
       });
       onSuccess();
       onClose();
@@ -41,8 +41,7 @@ export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalP
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-        
-        {/* Header */}
+
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <h3 className="font-semibold text-zinc-900">Add New Monitor</h3>
           <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600">
@@ -50,7 +49,6 @@ export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalP
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
             <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-100">

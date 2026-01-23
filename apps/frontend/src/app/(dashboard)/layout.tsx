@@ -14,10 +14,7 @@ export default function DashboardLayout({
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    // 1. Check for token
     const token = localStorage.getItem("token");
-    
-    // 2. If no token, redirect to login
     if (!token) {
       router.push("/login");
     } else {
@@ -25,7 +22,6 @@ export default function DashboardLayout({
     }
   }, [router]);
 
-  // Show a spinner while checking auth to prevent "flashing" protected content
   if (!isAuthorized) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-zinc-50">
@@ -40,9 +36,6 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-zinc-50">
       <Sidebar />
-      {/* ml-64: Pushes content right to account for the fixed 64 (16rem/256px) sidebar 
-         w-full: Takes remaining width
-      */}
       <main className="ml-64 p-8 w-[calc(100%-16rem)]">
         <div className="max-w-6xl mx-auto">
           {children}

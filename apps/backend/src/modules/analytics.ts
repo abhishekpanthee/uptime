@@ -1,37 +1,34 @@
 import { Elysia } from 'elysia';
 import { db } from '../db';
-import { analytics, ownership, averageHour } from '../db/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { analytics, ownership } from '../db/schema';
+import { eq, desc } from 'drizzle-orm';
 
 export const analyticsRoutes = new Elysia()
-    
-    // GET /api/status/:url
+
     .get('/status/:url', async ({ params }) => {
+        const decodedUrl = decodeURIComponent(params.url);
         const [last] = await db.select()
             .from(analytics)
-            .where(eq(analytics.website_url, params.url))
+            .where(eq(analytics.website_url, decodedUrl))
             .orderBy(desc(analytics.checked_at))
             .limit(1);
-        return last || { status: "unknown" };
+        return last || { status: 0, ping5: null };
     })
 
-    // GET /api/analytics/:url
     .get('/analytics/:url', async ({ params }) => {
+        const decodedUrl = decodeURIComponent(params.url);
+
+        console.log(`Fetching raw history for: ${decodedUrl}`);
+
         return await db.select()
-            .from(averageHour)
-            .where(eq(averageHour.website_url, params.url))
-            .orderBy(desc(averageHour.checked_at))
-            .limit(24);
+            .from(analytics)
+            .where(eq(analytics.website_url, decodedUrl))
+            .orderBy(desc(analytics.checked_at))
+            .limit(50);
     })
 
-    // GET /api/public/status
     .get('/public/status', async () => {
-        return await db.select({
-            url: ownership.website_url,
-            status: analytics.ping5
-        })
-        .from(ownership)
-        .leftJoin(analytics, eq(ownership.website_url, analytics.website_url))
-        .where(eq(ownership.is_public, true))
-        // Note: Real SQL would likely use DISTINCT ON or a subquery for latest status
+        return await db.select()
+            .from(ownership)
+            .where(eq(ownership.is_public, true));
     });
