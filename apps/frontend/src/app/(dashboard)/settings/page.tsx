@@ -3,9 +3,6 @@
 import { User } from "lucide-react";
 
 export default function SettingsPage() {
-  // In a real app, you would fetch the 'user' object from an API
-  // For now, we'll just show the static UI structure
-  
   return (
     <div>
       <div className="mb-8">

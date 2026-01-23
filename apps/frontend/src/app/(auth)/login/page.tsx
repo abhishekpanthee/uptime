@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { api } from "@/lib/api"; // The axios bridge we created earlier
+import { api } from "@/lib/api";
 import { LayoutDashboard, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
@@ -21,16 +21,12 @@ export default function LoginPage() {
     const password = formData.get("password");
 
     try {
-      // 1. Call the Backend
       const res = await api.post("/auth/login", { email, password });
 
-      // 2. Save Token
       localStorage.setItem("token", res.data.accessToken);
 
-      // 3. Redirect to Dashboard
       router.push("/dashboard");
     } catch (err: any) {
-      // Handle Errors (e.g., Invalid credentials)
       const msg = err.response?.data?.error || "Something went wrong";
       setError(msg);
     } finally {
@@ -41,7 +37,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-4">
       <div className="w-full max-w-md bg-white border border-zinc-200 rounded-lg shadow-sm p-8">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-black rounded-full">
@@ -56,7 +51,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Error Alert */}
         {error && (
           <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-md flex items-center gap-2 text-red-600 text-sm">
             <AlertCircle className="w-4 h-4" />
@@ -64,7 +58,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1">
@@ -108,7 +101,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Footer */}
         <div className="mt-6 text-center text-sm text-zinc-500">
           Don&apos;t have an account?{" "}
           <Link

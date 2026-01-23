@@ -6,8 +6,7 @@ import { jwt } from '@elysiajs/jwt';
 
 export const auth = new Elysia({ prefix: '/auth' })
     .use(jwt({ name: 'jwt', secret: process.env.JWT_SECRET! }))
-    
-    // POST /api/auth/register
+
     .post('/register', async ({ body, set }) => {
         const hashedPassword = await Bun.password.hash(body.password);
         try {
@@ -25,7 +24,6 @@ export const auth = new Elysia({ prefix: '/auth' })
         body: t.Object({ name: t.String(), email: t.String(), password: t.String() })
     })
 
-    // POST /api/auth/login
     .post('/login', async ({ body, set, jwt }) => {
         const [user] = await db.select().from(users).where(eq(users.email, body.email));
         if (!user || !(await Bun.password.verify(body.password, user.password))) {
@@ -39,7 +37,7 @@ export const auth = new Elysia({ prefix: '/auth' })
         await db.insert(refreshTokens).values({
             user_id: user.id,
             token: refreshToken,
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         });
 
         return { accessToken, refreshToken };
@@ -47,9 +45,7 @@ export const auth = new Elysia({ prefix: '/auth' })
         body: t.Object({ email: t.String(), password: t.String() })
     })
 
-    // POST /api/auth/logout
     .post('/logout', async ({ body }) => {
-        // Logic: Revoke specific refresh token in DB
         await db.update(refreshTokens)
             .set({ revoked_at: new Date() })
             .where(eq(refreshTokens.token, body.refreshToken));

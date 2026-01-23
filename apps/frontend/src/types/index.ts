@@ -5,7 +5,7 @@ export interface User {
 }
 
 export interface Website {
-  website_url: string; // Acts as ID
+  website_url: string;
   owner_id: number;
   is_public: boolean;
 }

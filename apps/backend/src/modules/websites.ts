@@ -4,7 +4,6 @@ import { ownership } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { jwt } from '@elysiajs/jwt';
 
-// Helper to extract User ID from header (Simplified for brevity)
 const getUserId = async (headers: any, jwt: any) => {
     const auth = headers['authorization'];
     const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
@@ -15,8 +14,7 @@ const getUserId = async (headers: any, jwt: any) => {
 
 export const websites = new Elysia({ prefix: '/websites' })
     .use(jwt({ name: 'jwt', secret: process.env.JWT_SECRET! }))
-    
-    // GET /api/websites
+
     .get('/', async ({ headers, jwt, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
@@ -24,7 +22,6 @@ export const websites = new Elysia({ prefix: '/websites' })
         return await db.select().from(ownership).where(eq(ownership.owner_id, userId));
     })
 
-    // POST /api/websites
     .post('/', async ({ headers, jwt, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
@@ -39,7 +36,6 @@ export const websites = new Elysia({ prefix: '/websites' })
         body: t.Object({ url: t.String(), is_public: t.Boolean() })
     })
 
-    // PUT /api/websites/:id (Using URL as ID per schema)
     .put('/:url', async ({ headers, jwt, params, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
@@ -54,7 +50,6 @@ export const websites = new Elysia({ prefix: '/websites' })
         body: t.Object({ is_public: t.Boolean() })
     })
 
-    // DELETE /api/websites/:id
     .delete('/:url', async ({ headers, jwt, params, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }

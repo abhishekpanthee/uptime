@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "TCIOE Uptime Monitor",
-  description: "Real-time service status for IOE Chitwan Campus",
+  description: "Real-time service status for IOE Thapathali Campus",
 };
 
 export default function RootLayout({

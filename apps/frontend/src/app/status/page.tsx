@@ -10,19 +10,16 @@ export default function StatusPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Reusing the websites endpoint.
-    // Ideally, you would create a specific public endpoint in the backend later.
     api.get("/websites") 
       .then(res => setSystems(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const allOperational = systems.length > 0; // Simplified logic for demo
+  const allOperational = systems.length > 0;
 
   return (
     <div className="min-h-screen bg-zinc-50 font-sans">
-      {/* College Brand Header */}
       <div className="bg-[#002147] text-white py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <div className="flex justify-center mb-4">
@@ -32,16 +29,14 @@ export default function StatusPage() {
           </div>
           <h1 className="text-3xl font-bold mb-3">TCIOE System Status</h1>
           <p className="text-blue-100/80 text-lg">
-            Real-time performance updates for IOE Chitwan Campus services.
+            Real-time performance updates for IOE Thapathali Campus services.
           </p>
         </div>
       </div>
 
-      {/* Status Container */}
       <div className="max-w-3xl mx-auto px-4 -mt-8 mb-12">
         <div className="bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden">
-          
-          {/* Main Status Banner */}
+
           <div className="bg-green-50 px-6 py-5 border-b border-zinc-100 flex items-center gap-3">
             <CheckCircle className="w-6 h-6 text-green-600" />
             <div>
