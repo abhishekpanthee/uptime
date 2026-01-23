@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TCIOE Uptime Monitor",
-  description: "Real-time service status for IOE Thapathali Campus",
+  title: "Uptime Monitoring System",
+  description: "Real-time uptime monitoring for your web services",
 };
 
 export default function RootLayout({

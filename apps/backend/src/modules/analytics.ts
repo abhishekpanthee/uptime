@@ -2,8 +2,6 @@ import { Elysia } from 'elysia'
 import { db } from '../db'
 
 export const analyticsRoutes = new Elysia()
-
-  // get last status
   .get('/status/:url', async ({ params }) => {
     const decodedUrl = decodeURIComponent(params.url)
 
@@ -19,7 +17,6 @@ export const analyticsRoutes = new Elysia()
     return data?.[0] ?? { status: 0, ping5: null }
   })
 
-  // get analytics history
   .get('/analytics/:url', async ({ params }) => {
     const decodedUrl = decodeURIComponent(params.url)
 
@@ -35,8 +32,6 @@ export const analyticsRoutes = new Elysia()
     if (error) throw error
     return data
   })
-
-  // get public websites
   .get('/public/status', async () => {
     const { data, error } = await db
       .from('ownership')

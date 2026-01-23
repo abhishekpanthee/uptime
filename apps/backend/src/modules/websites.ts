@@ -10,8 +10,6 @@ const getUserId = async (headers: any, jwt: any) => {
     return profile ? profile.id : null;
 };
 
-
-
 export const websites = new Elysia({ prefix: '/websites' })
     .use(jwt({ name: 'jwt', secret: process.env.JWT_SECRET! }))
 
@@ -19,50 +17,73 @@ export const websites = new Elysia({ prefix: '/websites' })
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
         
-        return await db.from('ownership').select('*').eq('owner_id', userId);
+        const { data, error } = await db.from('ownership').select('*').eq('owner_id', userId);
+        if (error) { set.status = 500; throw error; }
+        
+        return data;
     })
 
-
-    // adding website 
     .post('/', async ({ headers, jwt, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        await db.from('ownership').insert({
+        const { data: existing } = await db.from('ownership')
+            .select('*')
+            .match({ owner_id: userId, website_url: body.url })
+            .single();
+
+        if (existing) {
+            set.status = 409; 
+            return { message: "You are already monitoring this website." };
+        }
+
+        const { error } = await db.from('ownership').insert({
             website_url: body.url,
             owner_id: userId,
-            is_public: body.is_public
+            is_public: body.is_public ?? false 
         });
+
+        if (error) {
+            set.status = 422; 
+            return { message: error.message };
+        }
+
         return { message: "Website added" };
     }, {
-        body: t.Object({ url: t.String(), is_public: t.Boolean() })
+        body: t.Object({ 
+            url: t.String(), 
+            is_public: t.Optional(t.Boolean()) 
+        })
     })
 
-    // website is_public change 
-    .put('/:url', async ({ headers, jwt, params, body, set }) => {
+    .put('/', async ({ headers, jwt, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        const {data,error} = await db.from('ownership')
+        const { data } = await db.from('ownership')
             .update({ is_public: body.is_public })
-            .eq('website_url', params.url)
-            .eq('owner_id', userId)
+            .match({ website_url: body.url, owner_id: userId }) 
             .select();
             
         return data?.[0] || { error: "Not found" };
     }, {
-        body: t.Object({ is_public: t.Boolean() })
+        body: t.Object({ 
+            url: t.String(),
+            is_public: t.Boolean() 
+        })
     })
 
-
-    // delete website 
-    .delete('/:url', async ({ headers, jwt, params, set }) => {
+    .delete('/', async ({ headers, jwt, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        await db.from('ownership')
+        const { error } = await db.from('ownership')
             .delete()
-            .eq('website_url', params.url)
-            .eq('owner_id', userId);
+            .match({ website_url: body.url, owner_id: userId });
+
+        if (error) { set.status = 500; return { error: error.message }; }
+
         return { message: "Deleted" };
+    }, {
+        body: t.Object({ url: t.String() })
     });
