@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
 import { Activity, Plus, ArrowRight, Globe, AlertCircle } from "lucide-react";
 
 export default function DashboardPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [websites, setWebsites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     async function loadMonitors() {
       try {
         const res = await api.get("/websites");
@@ -28,9 +32,9 @@ export default function DashboardPage() {
       }
     }
     loadMonitors();
-  }, []);
+  }, [isAuthenticated]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="max-w-5xl mx-auto p-6">
         <div className="h-8 w-48 bg-zinc-100 rounded animate-pulse mb-8" />

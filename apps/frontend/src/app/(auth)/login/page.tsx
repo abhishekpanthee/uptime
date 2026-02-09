@@ -21,9 +21,9 @@ export default function LoginPage() {
     const password = formData.get("password");
 
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post(process.env.NEXT_PUBLIC_API_URL + "/auth/login", { email, password });
 
-      localStorage.setItem("token", res.data.accessToken);
+      localStorage.setItem("uptimeToken", res.data.accessToken);
 
       router.push("/dashboard");
     } catch (err: any) {

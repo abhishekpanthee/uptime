@@ -2,19 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
 import { CheckCircle, AlertTriangle, Loader2, Home } from "lucide-react";
 
 export default function StatusPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [systems, setSystems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     api.get("/websites") 
       .then(res => setSystems(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [isAuthenticated]);
 
   const allOperational = systems.length > 0;
 
@@ -61,7 +65,7 @@ export default function StatusPage() {
           </div>
 
           <div className="divide-y divide-zinc-100">
-            {loading ? (
+            {authLoading || loading ? (
               <div className="p-8 flex justify-center text-zinc-400">
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
                 Checking services...

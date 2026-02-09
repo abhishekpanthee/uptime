@@ -22,7 +22,7 @@ export default function RegisterPage() {
     const password = formData.get("password");
 
     try {
-      await api.post("/auth/register", { name, email, password });
+      await api.post(process.env.NEXT_PUBLIC_API_URL + "/auth/register", { name, email, password });
       router.push("/login");
     } catch (err: any) {
       const msg = err.response?.data?.error || "Registration failed";
