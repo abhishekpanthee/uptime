@@ -8,7 +8,6 @@ export function useAuth() {
 
   useEffect(() => {
     const token = localStorage.getItem("uptimeToken");
-    console.log(token ,' from tokens in auth')
     if (!token) {
       router.push("/login");
     } else {

@@ -1,6 +1,6 @@
 import postgres from "postgres";
 
-const client = postgres(process.env.AIVEN_DATABASE_URL!, {
+const client = postgres(Bun.env.DATABASE_URL!, {
   ssl: 'require'
 })
 

@@ -32,6 +32,7 @@ export default function MonitorDetailsPage() {
         
         const rawData = Array.isArray(res.data) ? res.data : [];
 
+        const seen = new Set<string>();
         const formattedData = rawData
           .map((item: any) => {
             if (!item) return null;
@@ -43,9 +44,13 @@ export default function MonitorDetailsPage() {
                rawDate += 'Z';
             }
             const dateObj = new Date(rawDate);
+            const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (seen.has(timeStr)) return null;
+            seen.add(timeStr);
 
             return {
-              time: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              time: timeStr,
               ping: val !== null ? Number(val) : null 
             };
           })
@@ -61,7 +66,7 @@ export default function MonitorDetailsPage() {
     }
 
     fetchData();
-    const interval = setInterval(fetchData, 10000); // Poll every 10s
+    const interval = setInterval(fetchData, 60000); //pulling every 1 mins
     return () => clearInterval(interval);
   }, [rawUrl]);
 

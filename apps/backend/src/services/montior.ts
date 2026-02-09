@@ -9,8 +9,6 @@ export const monitorService = new Elysia({ name: "monitor-service" })
   });
 
 async function runCheck() {
-  console.log("Starting 1-minute check...");
-
   try {
     // Get websites to monitor
     const { data: sites, error: fetchError } = await db
@@ -19,9 +17,9 @@ async function runCheck() {
 
     if (fetchError) throw fetchError;
 
-    console.log(`Found ${sites?.length || 0} websites.`);
-
     if (!sites || sites.length === 0) return;
+
+    console.log(`Starting 1-minute check for ${sites.length} websites...`);
 
     for (const site of sites) {
       const start = performance.now();
