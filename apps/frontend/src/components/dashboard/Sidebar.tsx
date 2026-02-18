@@ -21,14 +21,14 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-[#002147] to-[#001530] text-white flex flex-col h-screen fixed left-0 top-0 border-r border-[#003366] z-50 shadow-xl">
-      <div className="h-16 flex items-center px-6 border-b border-[#003366]/50">
-        <div className="w-9 h-9 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 font-bold text-sm border border-white/20">
+    <aside className="w-64 bg-gradient-to-b from-[#2563a0] to-[#1d4f85] text-white flex flex-col h-screen fixed left-0 top-0 border-r border-[#2e6fb0] z-50 shadow-xl">
+      <div className="h-16 flex items-center px-6 border-b border-[#2e6fb0]/50">
+        <div className="w-9 h-9 bg-white/15 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 font-bold text-sm border border-white/30">
             <span className="text-white font-bold">↗</span>
         </div>
         <div className="leading-tight">
           <span className="block font-bold text-sm tracking-tight text-white">Uptime</span>
-          <span className="block text-xs text-blue-200 font-medium">Monitor</span>
+          <span className="block text-xs text-gray-100 font-medium">Monitor</span>
         </div>
       </div>
 
@@ -43,8 +43,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-white/15 text-white shadow-lg border border-white/20"
-                  : "text-blue-100 hover:text-white hover:bg-white/10 border border-transparent"
+                  ? "bg-white/15 text-white shadow-lg border border-white/30"
+                  : "text-gray-100 hover:text-white hover:bg-white/15 border border-transparent"
               )}
             >
               <item.icon className="w-4 h-4" />
@@ -54,7 +54,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-[#003366]/50">
+      <div className="p-4 border-t border-[#2e6fb0]/50">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all"

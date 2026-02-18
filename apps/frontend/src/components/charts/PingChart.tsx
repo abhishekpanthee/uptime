@@ -18,7 +18,7 @@ interface PingData {
 export function PingChart({ data }: { data: PingData[] }) {
   if (!data || data.length === 0) {
     return (
-      <div className="h-[350px] w-full flex flex-col items-center justify-center bg-white border border-zinc-200 rounded-lg text-zinc-400">
+      <div className="h-[350px] w-full flex flex-col items-center justify-center bg-[#2a5a8c] border border-white/30 rounded-lg text-gray-100">
         <p>No data recorded yet.</p>
         <p className="text-xs mt-1">Wait for the next 1-minute check.</p>
       </div>
@@ -26,10 +26,10 @@ export function PingChart({ data }: { data: PingData[] }) {
   }
 
   return (
-    <div className="h-[350px] w-full bg-white border border-zinc-200 rounded-lg p-6 shadow-sm">
+    <div className="h-[350px] w-full bg-[#2a5a8c] border border-white/30 rounded-lg p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-sm font-semibold text-zinc-900">Response Time</h3>
-        <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-1 rounded-md">Last 24 Hours</span>
+        <h3 className="text-sm font-semibold text-white">Response Time</h3>
+        <span className="text-xs font-medium text-gray-100 bg-white/15 px-2 py-1 rounded-md">Last 24 Hours</span>
       </div>
       
       <ResponsiveContainer width="100%" height="100%">

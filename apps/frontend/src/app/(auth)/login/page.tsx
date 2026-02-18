@@ -33,24 +33,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-md bg-white border border-zinc-200 rounded-lg shadow-sm p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#2a5a8c] via-[#1e4a7a] to-[#2a5a8c] px-4">
+      <div className="w-full max-w-md bg-[#2a5a8c] border border-white/30 rounded-lg shadow-sm p-8">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-black rounded-full">
+            <div className="p-3 bg-[#2563a0] rounded-full">
               <LayoutDashboard className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
             Welcome back
           </h1>
-          <p className="text-zinc-500 mt-2 text-sm">
+          <p className="text-gray-100 mt-2 text-sm">
             Enter your credentials to access your monitor.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-md flex items-center gap-2 text-red-600 text-sm">
+          <div className="mb-6 p-3 bg-red-900/30 border border-red-500/30 rounded-md flex items-center gap-2 text-red-400 text-sm">
             <AlertCircle className="w-4 h-4" />
             {error}
           </div>
@@ -58,7 +58,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1">
+            <label className="block text-sm font-medium text-gray-100 mb-1">
               Email
             </label>
             <input
@@ -66,12 +66,12 @@ export default function LoginPage() {
               type="email"
               required
               placeholder="you@example.com"
-              className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              className="w-full px-3 py-2 border border-white/30 rounded-md bg-[#1e4a7a] text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1">
+            <label className="block text-sm font-medium text-gray-100 mb-1">
               Password
             </label>
             <input
@@ -79,14 +79,14 @@ export default function LoginPage() {
               type="password"
               required
               placeholder="••••••••"
-              className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              className="w-full px-3 py-2 border border-white/30 rounded-md bg-[#1e4a7a] text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black hover:bg-zinc-800 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#2563a0] hover:bg-[#1d4f85] text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -99,11 +99,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-zinc-500">
+        <div className="mt-6 text-center text-sm text-gray-100">
           Don&apos;t have an account?{" "}
           <Link
             href="/register"
-            className="text-black font-semibold hover:underline"
+            className="text-white font-semibold hover:underline"
           >
             Create one
           </Link>

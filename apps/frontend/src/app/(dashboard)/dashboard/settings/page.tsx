@@ -31,38 +31,38 @@ export default function SettingsPage() {
 	return (
 		<div>
 			<div className="mb-8">
-				<h1 className="text-2xl font-bold text-zinc-900">Settings</h1>
-				<p className="text-zinc-500 text-sm">Manage your account and preferences.</p>
+				<h1 className="text-2xl font-bold text-white">Settings</h1>
+				<p className="text-gray-100 text-sm">Manage your account and preferences.</p>
 			</div>
 
-			<div className="bg-white border border-zinc-200 rounded-lg shadow-sm max-w-2xl">
-				<div className="p-6 border-b border-zinc-100">
-					<h2 className="text-lg font-semibold text-zinc-900">Profile Information</h2>
-					<p className="text-sm text-zinc-500">Your account details.</p>
+			<div className="bg-[#2a5a8c] border border-white/30 rounded-lg shadow-sm max-w-2xl">
+				<div className="p-6 border-b border-white/30">
+					<h2 className="text-lg font-semibold text-white">Profile Information</h2>
+					<p className="text-sm text-gray-100">Your account details.</p>
 				</div>
 
 				<div className="p-6">
 					<div className="grid grid-cols-1 gap-4">
 						<div>
-							<label className="block text-sm font-medium text-zinc-700 mb-1">
+							<label className="block text-sm font-medium text-gray-100 mb-1">
 								Full Name
 							</label>
 							<input
 								type="text"
 								disabled
 								value={loading ? "Loading..." : userData.name}
-								className="w-full px-3 py-2 border border-zinc-200 rounded-md bg-zinc-50 text-zinc-500 cursor-not-allowed"
+							className="w-full px-3 py-2 border border-white/30 rounded-md bg-[#1e4a7a] text-gray-100 cursor-not-allowed"
 							/>
 						</div>
 						<div>
-							<label className="block text-sm font-medium text-zinc-700 mb-1">
+							<label className="block text-sm font-medium text-gray-100 mb-1">
 								Email Address
 							</label>
 							<input
 								type="text"
 								disabled
 								value={loading ? "Loading..." : userData.email}
-								className="w-full px-3 py-2 border border-zinc-200 rounded-md bg-zinc-50 text-zinc-500 cursor-not-allowed"
+							className="w-full px-3 py-2 border border-white/30 rounded-md bg-[#1e4a7a] text-gray-100 cursor-not-allowed"
 							/>
 						</div>
 					</div>
@@ -70,7 +70,7 @@ export default function SettingsPage() {
 			</div>
 
 			{/* Sign Out Section */}
-			<div className="bg-white border border-zinc-200 rounded-lg shadow-sm max-w-2xl mt-6">
+			<div className="bg-[#2a5a8c] border border-white/30 rounded-lg shadow-sm max-w-2xl mt-6">
 				<div className="p-6">
 					<button
 						onClick={handleSignOut}

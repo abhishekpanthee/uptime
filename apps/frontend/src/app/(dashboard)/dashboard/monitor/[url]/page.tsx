@@ -91,8 +91,8 @@ export default function MonitorDetailsPage() {
   if (loading && !siteData) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin mb-4" />
-        <p className="text-zinc-500 font-medium animate-pulse">Analyzing network data...</p>
+        <Loader2 className="w-8 h-8 text-gray-100 animate-spin mb-4" />
+        <p className="text-gray-100 font-medium animate-pulse">Analyzing network data...</p>
       </div>
     );
   }
@@ -101,37 +101,37 @@ export default function MonitorDetailsPage() {
     <div className="max-w-5xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
         <div>
-          <Link href="/dashboard" className="inline-flex items-center text-sm text-zinc-500 hover:text-black mb-4 transition-colors font-medium">
+          <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-100 hover:text-white mb-4 transition-colors font-medium">
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-4">
-             <div className="w-14 h-14 bg-white border border-zinc-200 rounded-xl flex items-center justify-center shadow-sm text-[#002147]">
+             <div className="w-14 h-14 bg-[#2a5a8c] border border-white/30 rounded-xl flex items-center justify-center shadow-sm text-[#2563a0]">
                 <Globe className="w-7 h-7" />
              </div>
              <div>
-               <h1 className="text-2xl font-bold text-zinc-900">{rawUrl.replace(/^https?:\/\//, '')}</h1>
+               <h1 className="text-2xl font-bold text-white">{rawUrl.replace(/^https?:\/\//, '')}</h1>
                <a href={rawUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline mb-1 block">
                  {rawUrl} ↗
                </a>
-               <div className="flex items-center gap-3 mt-2 text-sm text-zinc-500">
+               <div className="flex items-center gap-3 mt-2 text-sm text-gray-100">
                   <span className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-medium text-xs border ${
-                    isCurrentlyUp ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"
+                    isCurrentlyUp ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-900/30 text-red-300 border-red-200"
                   }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isCurrentlyUp ? "bg-emerald-500" : "bg-red-500"}`}/>
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isCurrentlyUp ? "bg-emerald-500" : "bg-red-900/300"}`}/>
                     {isCurrentlyUp ? "Operational" : "Downtime"}
                   </span>
                   
                   {siteData && (
-                    <div className="flex items-center gap-2 pl-3 border-l border-zinc-200">
+                    <div className="flex items-center gap-2 pl-3 border-l border-white/30">
                       <button 
                         onClick={togglePublicStatus}
                         disabled={toggling}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
-                          siteData.is_public ? 'bg-[#005bb5]' : 'bg-zinc-300'
+                          siteData.is_public ? 'bg-[#2563a0]' : 'bg-white/20'
                         }`}
                       >
-                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                        <span className={`inline-block h-3 w-3 transform rounded-full bg-[#2a5a8c] transition-transform ${
                           siteData.is_public ? 'translate-x-5' : 'translate-x-1'
                         }`} />
                       </button>
@@ -145,7 +145,7 @@ export default function MonitorDetailsPage() {
           </div>
         </div>
 
-        <button onClick={handleDelete} className="flex items-center justify-center gap-2 px-4 py-2 mt-6 md:mt-0 text-sm font-medium text-red-600 bg-white border border-red-100 rounded-lg hover:bg-red-50 transition-colors shadow-sm">
+        <button onClick={handleDelete} className="flex items-center justify-center gap-2 px-4 py-2 mt-6 md:mt-0 text-sm font-medium text-red-400 bg-[#2a5a8c] border border-red-500/30 rounded-lg hover:bg-red-900/30 transition-colors shadow-sm">
           <Trash2 className="w-4 h-4" />
           Delete Monitor
         </button>
@@ -174,19 +174,19 @@ export default function MonitorDetailsPage() {
         />
       </div>
 
-      <div className="bg-white border border-zinc-200 shadow-sm rounded-xl p-6 mb-8">
+      <div className="bg-[#2a5a8c] border border-white/30 shadow-sm rounded-xl p-6 mb-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-bold text-zinc-900">Response Time</h2>
+          <h2 className="font-bold text-white">Response Time</h2>
           
-          <div className="flex bg-zinc-100 p-1 rounded-lg">
+          <div className="flex bg-white/15 p-1 rounded-lg">
             {['1h', '24h', '7d', '30d'].map((t) => (
               <button
                 key={t}
                 onClick={() => setRange(t)}
                 className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all uppercase ${
                   range === t 
-                    ? "bg-white text-black shadow-sm" 
-                    : "text-zinc-500 hover:text-black"
+                    ? "bg-[#2a5a8c] text-white shadow-sm" 
+                    : "text-gray-100 hover:text-white"
                 }`}
               >
                 {t}
@@ -197,11 +197,11 @@ export default function MonitorDetailsPage() {
 
         <div className="h-[350px] w-full">
           {loading && history.length === 0 ? (
-            <div className="h-full w-full bg-zinc-50 animate-pulse rounded-lg" />
+            <div className="h-full w-full bg-[#1e4a7a] animate-pulse rounded-lg" />
           ) : history.length > 0 ? (
             <PingChart data={history} />
           ) : (
-            <div className="h-full flex items-center justify-center text-zinc-400 text-sm">
+            <div className="h-full flex items-center justify-center text-gray-100 text-sm">
               No data collected for this time range yet.
             </div>
           )}
@@ -213,12 +213,12 @@ export default function MonitorDetailsPage() {
 
 function StatCard({ label, value, icon }: any) {
   return (
-    <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex items-start justify-between hover:border-zinc-300 transition-colors">
+    <div className="bg-[#2a5a8c] p-6 rounded-xl border border-white/30 shadow-sm flex items-start justify-between hover:border-white/30 transition-colors">
       <div>
-        <p className="text-sm font-medium text-zinc-500">{label}</p>
-        <p className="text-2xl font-bold text-zinc-900 mt-2 tracking-tight">{value}</p>
+        <p className="text-sm font-medium text-gray-100">{label}</p>
+        <p className="text-2xl font-bold text-white mt-2 tracking-tight">{value}</p>
       </div>
-      <div className="p-2.5 bg-zinc-50 rounded-lg text-zinc-400 border border-zinc-100">
+      <div className="p-2.5 bg-[#14335c] rounded-lg text-gray-100 border border-white/30">
         {icon}
       </div>
     </div>
