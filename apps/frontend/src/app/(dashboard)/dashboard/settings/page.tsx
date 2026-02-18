@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Mail, UserRound } from "lucide-react";
 import { api } from "@/lib/api";
 
 export default function SettingsPage() {
@@ -29,54 +29,54 @@ export default function SettingsPage() {
 		router.push("/login");
 	};
 	return (
-		<div>
-			<div className="mb-8">
-				<h1 className="text-2xl font-bold text-white">Settings</h1>
-				<p className="text-gray-100 text-sm">Manage your account and preferences.</p>
-			</div>
-
-			<div className="bg-[#2a5a8c] border border-white/30 rounded-lg shadow-sm max-w-2xl">
-				<div className="p-6 border-b border-white/30">
-					<h2 className="text-lg font-semibold text-white">Profile Information</h2>
-					<p className="text-sm text-gray-100">Your account details.</p>
+		<div className="space-y-6">
+			<div className="surface-panel fade-up overflow-hidden">
+				<div className="border-b border-[var(--border)] bg-gradient-to-r from-[#0f4c81] to-[#1b6aa8] px-6 py-7 text-white sm:px-8">
+					<h1 className="text-2xl font-bold">Account Settings</h1>
+					<p className="mt-2 text-sm text-[#d6e8fb]">
+						Manage administrator profile information and session access.
+					</p>
 				</div>
 
-				<div className="p-6">
-					<div className="grid grid-cols-1 gap-4">
-						<div>
-							<label className="block text-sm font-medium text-gray-100 mb-1">
-								Full Name
-							</label>
+				<div className="space-y-5 px-6 py-6 sm:px-8">
+					<div>
+						<label className="mb-2 block text-sm font-semibold text-[var(--ink)]">Full Name</label>
+						<div className="relative">
+							<UserRound className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-[var(--ink-soft)]" />
 							<input
 								type="text"
 								disabled
 								value={loading ? "Loading..." : userData.name}
-							className="w-full px-3 py-2 border border-white/30 rounded-md bg-[#1e4a7a] text-gray-100 cursor-not-allowed"
+								className="input-field cursor-not-allowed pl-10 text-[var(--ink-soft)]"
 							/>
 						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-100 mb-1">
-								Email Address
-							</label>
+					</div>
+
+					<div>
+						<label className="mb-2 block text-sm font-semibold text-[var(--ink)]">Email Address</label>
+						<div className="relative">
+							<Mail className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-[var(--ink-soft)]" />
 							<input
 								type="text"
 								disabled
 								value={loading ? "Loading..." : userData.email}
-							className="w-full px-3 py-2 border border-white/30 rounded-md bg-[#1e4a7a] text-gray-100 cursor-not-allowed"
+								className="input-field cursor-not-allowed pl-10 text-[var(--ink-soft)]"
 							/>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			{/* Sign Out Section */}
-			<div className="bg-[#2a5a8c] border border-white/30 rounded-lg shadow-sm max-w-2xl mt-6">
-				<div className="p-6">
+			<div className="surface-panel fade-up max-w-2xl p-6" style={{ animationDelay: "80ms" }}>
+				<p className="mb-4 text-sm text-[var(--ink-soft)]">
+					Signing out will end the current admin session on this device.
+				</p>
+				<div>
 					<button
 						onClick={handleSignOut}
-						className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+						className="inline-flex items-center gap-2 rounded-xl bg-[#c23b31] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#ad3128]"
 					>
-						<LogOut className="w-4 h-4" />
+						<LogOut className="h-4 w-4" />
 						Sign Out
 					</button>
 				</div>

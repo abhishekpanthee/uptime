@@ -9,10 +9,10 @@
   "scripts": {
     "start": "bun run apps/backend/src/index.ts",
     "dev": "bun run --filter='*' dev",
-    "dev:frontend": "bun run --filter=frontend dev",
+    "dev:frontend": "bun run --filter=web dev",
     "dev:backend": "bun run --filter=backend dev",
     "build": "bun run --filter='*' build",
-    "build:frontend": "bun run --filter=frontend build",
+    "build:frontend": "bun run --filter=web build",
     "build:backend": "bun run --filter=backend build",
     "clean": "rm -rf node_modules apps/*/node_modules apps/*/.next apps/*/dist packages/*/node_modules"
   },

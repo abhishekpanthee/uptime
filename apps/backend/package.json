@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir ./dist --target bun"
+    "build": "bun build src/index.ts --outdir ./dist --target bun",
+    "seed:status": "bun run scripts/seed-status.ts",
+    "seed:status:example": "bun run scripts/seed-status.ts --config scripts/seed-status.config.example.json --reset"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
