@@ -22,16 +22,12 @@ export default function RegisterPage() {
     const password = formData.get("password");
 
     try {
-      // 1. Cleaned up API call
       const res = await api.post("/auth/register", { name, email, password });
-      
-      // 2. ✅ Auto-login: Save the token immediately
+
       localStorage.setItem("uptimeToken", res.data.token);
-      
-      // 3. ✅ Send them straight to the dashboard instead of the login page
+
       router.push("/dashboard");
     } catch (err: any) {
-      // Safely extract Elysia's error message
       const msg = err.response?.data?.message || err.response?.data?.error || "Registration failed";
       setError(msg);
     } finally {

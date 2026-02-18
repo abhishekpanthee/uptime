@@ -21,16 +21,10 @@ export default function LoginPage() {
     const password = formData.get("password");
 
     try {
-      // Cleaned up the URL path
       const res = await api.post("/auth/login", { email, password });
-
-      // ✅ FIX: Use res.data.token to match your new backend
       localStorage.setItem("uptimeToken", res.data.token);
-
-      // Redirect to dashboard
       router.push("/dashboard");
     } catch (err: any) {
-      // Safely extract the error message from the backend
       const msg = err.response?.data?.message || err.message || "Something went wrong";
       setError(msg);
     } finally {

@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function AddMonitorPage() {
   const router = useRouter();
   const [url, setUrl] = useState("");
-  const [siteName, setSiteName] = useState(""); // <-- New State for Friendly Name
+  const [siteName, setSiteName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,7 +32,7 @@ export default function AddMonitorPage() {
     try {
       await api.post("/websites", { 
         url: formattedUrl,
-        site_name: siteName.trim() || undefined, // <-- Send name to backend
+        site_name: siteName.trim() || undefined,
       });
 
       router.push("/dashboard");
@@ -81,7 +81,6 @@ export default function AddMonitorPage() {
               </div>
             )}
 
-            {/* NEW: Friendly Name Input */}
             <div className="mb-5">
               <label htmlFor="siteName" className="block text-sm font-medium text-zinc-700 mb-2">
                 Friendly Name <span className="text-zinc-400 font-normal">(Optional)</span>
@@ -102,7 +101,6 @@ export default function AddMonitorPage() {
               </div>
             </div>
 
-            {/* EXISTING: URL Input */}
             <div className="mb-6">
               <label htmlFor="url" className="block text-sm font-medium text-zinc-700 mb-2">
                 Website URL
