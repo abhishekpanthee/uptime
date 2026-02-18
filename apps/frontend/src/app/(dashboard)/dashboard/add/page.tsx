@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { ArrowLeft, Globe, Plus, AlertCircle } from "lucide-react";
+import { ArrowLeft, Globe, Plus, AlertCircle, Type } from "lucide-react";
 import Link from "next/link";
 
 export default function AddMonitorPage() {
   const router = useRouter();
   const [url, setUrl] = useState("");
+  const [siteName, setSiteName] = useState(""); // <-- New State for Friendly Name
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,6 +32,7 @@ export default function AddMonitorPage() {
     try {
       await api.post("/websites", { 
         url: formattedUrl,
+        site_name: siteName.trim() || undefined, // <-- Send name to backend
       });
 
       router.push("/dashboard");
@@ -79,16 +81,41 @@ export default function AddMonitorPage() {
               </div>
             )}
 
+            {/* NEW: Friendly Name Input */}
+            <div className="mb-5">
+              <label htmlFor="siteName" className="block text-sm font-medium text-zinc-700 mb-2">
+                Friendly Name <span className="text-zinc-400 font-normal">(Optional)</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Type className="h-5 w-5 text-zinc-400" />
+                </div>
+                <input
+                  type="text"
+                  id="siteName"
+                  placeholder="e.g. College Portal"
+                  className="w-full pl-10 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition-all placeholder:text-zinc-400"
+                  value={siteName}
+                  onChange={(e) => setSiteName(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* EXISTING: URL Input */}
             <div className="mb-6">
               <label htmlFor="url" className="block text-sm font-medium text-zinc-700 mb-2">
                 Website URL
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Globe className="h-5 w-5 text-zinc-400" />
+                </div>
                 <input
                   type="text"
                   id="url"
                   placeholder="e.g. tcioe.edu.np"
-                  className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition-all placeholder:text-zinc-400"
+                  className="w-full pl-10 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition-all placeholder:text-zinc-400"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={loading}

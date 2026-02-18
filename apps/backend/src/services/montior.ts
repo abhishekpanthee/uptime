@@ -177,6 +177,7 @@ async function runCheck() {
       }
 
       // 3. Save the ping to Analytics table
+      // 3. Save the ping to Analytics table
       await db.from("analytics").insert({
         website_url: site.website_url,
         ping5: ping,
@@ -184,13 +185,43 @@ async function runCheck() {
         checked_at: new Date().toISOString(),
       });
 
+      // --- NEW FEATURE 1: DISCORD/SLACK ALERTS ---
+      // If the website goes down, fire off a webhook
+      if (status !== 200) {
+        const webhookUrl = Bun.env.DISCORD_WEBHOOK_URL;
+        if (webhookUrl) {
+          const name = site.site_name || site.website_url;
+          await fetch(webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              content: `🚨 **URGENT ALERT:** \`${name}\` is DOWN! \nStatus Code: ${status}\nTime: ${new Date().toLocaleTimeString()}` 
+            })
+          }).catch((err) => console.log("Webhook failed", err));
+        }
+      }
+
       // 4. Update the Ownership table with the latest SSL info
       if (sslDays !== null) {
         await db.from("ownership")
           .update({ ssl_days: sslDays })
           .eq("website_url", site.website_url);
       }
+    } // <-- End of your existing for...of loop
+
+    // --- NEW FEATURE 2: DATA RETENTION (CLEANUP) ---
+    // After checking all sites, delete any ping data older than 30 days
+    // This guarantees your PostgreSQL database will NEVER bloat or crash.
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { error: cleanupError } = await db
+      .from("analytics")
+      .delete()
+      .lt("checked_at", thirtyDaysAgo);
+      
+    if (!cleanupError) {
+       console.log("🧹 Routine database cleanup completed.");
     }
+
   } catch (error) {
     console.error("Monitor error:", error);
   }

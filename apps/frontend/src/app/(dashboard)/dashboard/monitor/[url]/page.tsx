@@ -59,8 +59,15 @@ export default function MonitorDetailsPage() {
         setStats(res.data.stats);
 
         // Format the history for your PingChart component
+        // Format the history for your PingChart component
         const formattedData = res.data.history.map((item: any) => {
-          const dateObj = new Date(item.checked_at);
+          
+          // THE FIX: Force the browser to recognize this as UTC time
+          let rawDate = item.checked_at;
+          if (typeof rawDate === 'string' && !rawDate.endsWith('Z')) {
+             rawDate += 'Z';
+          }
+          const dateObj = new Date(rawDate);
           
           // If viewing 7d or 30d, include the date in the string. Otherwise just the time.
           const timeStr = range === '7d' || range === '30d'

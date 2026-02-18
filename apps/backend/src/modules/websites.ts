@@ -43,6 +43,7 @@ export const websites = new Elysia({ prefix: '/websites' })
         const { error } = await db.from('ownership').insert({
             website_url: body.url,
             owner_id: userId,
+            site_name: body.site_name || null,
             is_public: body.is_public ?? false 
         });
 
@@ -55,6 +56,7 @@ export const websites = new Elysia({ prefix: '/websites' })
     }, {
         body: t.Object({ 
             url: t.String(), 
+            site_name: t.Optional(t.String()),
             is_public: t.Optional(t.Boolean()) 
         })
     })
