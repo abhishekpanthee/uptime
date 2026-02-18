@@ -1,8 +1,33 @@
 "use client";
 
-import { User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { LogOut } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function SettingsPage() {
+	const router = useRouter();
+	const [userData, setUserData] = useState({ name: "", email: "" });
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchUserData = async () => {
+			try {
+				const response = await api.get("/auth/me");
+				setUserData(response.data.user);
+			} catch (error) {
+				console.error("Failed to fetch user data:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchUserData();
+	}, []);
+
+	const handleSignOut = () => {
+		localStorage.removeItem("uptimeToken");
+		router.push("/login");
+	};
 	return (
 		<div>
 			<div className="mb-8">
@@ -16,18 +41,7 @@ export default function SettingsPage() {
 					<p className="text-sm text-zinc-500">Your account details.</p>
 				</div>
 
-				<div className="p-6 space-y-6">
-					<div className="flex items-center gap-4">
-						<div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-400">
-							<User className="w-8 h-8" />
-						</div>
-						<div>
-							<button className="text-sm font-medium text-black border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-50 transition-colors">
-								Change Avatar
-							</button>
-						</div>
-					</div>
-
+				<div className="p-6">
 					<div className="grid grid-cols-1 gap-4">
 						<div>
 							<label className="block text-sm font-medium text-zinc-700 mb-1">
@@ -36,7 +50,7 @@ export default function SettingsPage() {
 							<input
 								type="text"
 								disabled
-								value="Administrator"
+								value={loading ? "Loading..." : userData.name}
 								className="w-full px-3 py-2 border border-zinc-200 rounded-md bg-zinc-50 text-zinc-500 cursor-not-allowed"
 							/>
 						</div>
@@ -47,11 +61,24 @@ export default function SettingsPage() {
 							<input
 								type="text"
 								disabled
-								value="test@example.com"
+								value={loading ? "Loading..." : userData.email}
 								className="w-full px-3 py-2 border border-zinc-200 rounded-md bg-zinc-50 text-zinc-500 cursor-not-allowed"
 							/>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			{/* Sign Out Section */}
+			<div className="bg-white border border-zinc-200 rounded-lg shadow-sm max-w-2xl mt-6">
+				<div className="p-6">
+					<button
+						onClick={handleSignOut}
+						className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+					>
+						<LogOut className="w-4 h-4" />
+						Sign Out
+					</button>
 				</div>
 			</div>
 		</div>

@@ -184,5 +184,63 @@ export const auth = new Elysia({ prefix: "/auth" })
     body: t.Object({
       email: t.String(),
       password: t.String()
-    })
+    })  })
+
+  // GET /api/auth/me - Get current user profile
+  .get("/me", async ({ headers, jwt, set }) => {
+    const auth = headers['authorization'];
+    const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
+    
+    if (!token) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+
+    const profile = await jwt.verify(token);
+    if (!profile) {
+      set.status = 401;
+      return { error: "Invalid token" };
+    }
+
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, name, email")
+      .eq("id", profile.id)
+      .single();
+
+    if (error || !user) {
+      set.status = 404;
+      return { error: "User not found" };
+    }
+
+    return { user };  })
+
+  // GET /api/auth/me - Get current user profile
+  .get("/me", async ({ headers, jwt, set }) => {
+    const auth = headers['authorization'];
+    const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
+    
+    if (!token) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+
+    const profile = await jwt.verify(token);
+    if (!profile) {
+      set.status = 401;
+      return { error: "Invalid token" };
+    }
+
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, name, email")
+      .eq("id", profile.id)
+      .single();
+
+    if (error || !user) {
+      set.status = 404;
+      return { error: "User not found" };
+    }
+
+    return { user };
   });
