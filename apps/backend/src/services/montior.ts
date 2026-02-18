@@ -136,7 +136,7 @@ async function runCheck() {
       .lt("checked_at", thirtyDaysAgo);
       
     if (!cleanupError) {
-      console.log("Routine database cleanup completed.");
+       console.log(" Routine database cleanup completed.");
     }
 
   } catch (error) {
