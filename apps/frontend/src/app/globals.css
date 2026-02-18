@@ -1,47 +1,140 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --primary: #2563a0;
-    --primary-light: #005bb5;
-    --primary-dark: #1d4f85;
-    --success: #10b981;
-    --error: #ef4444;
-    --warning: #f59e0b;
+    --font-heading: "Inter", "Segoe UI", "Trebuchet MS", sans-serif;
+    --font-body: "Inter", "Segoe UI", "Helvetica Neue", sans-serif;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-soft: #eef2ff;
+    --ink: #1f2937;
+    --ink-soft: #4b5563;
+    --college-blue: #1e3a8a;
+    --college-blue-strong: #172554;
+    --college-orange: #f97316;
+    --brand: var(--college-blue);
+    --brand-strong: var(--college-blue-strong);
+    --accent: var(--college-orange);
+    --success: #15803d;
+    --danger: #b91c1c;
+    --warning: #b45309;
+    --border: #dbe3f0;
+    --ring: #3b82f6;
   }
 
   body {
-    @apply bg-gradient-to-br from-[#2a5a8c] via-[#1e4a7a] to-[#2a5a8c] text-white antialiased;
-    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+    @apply antialiased;
+    background:
+      radial-gradient(1200px circle at 8% -10%, rgba(30, 58, 138, 0.15) 0%, transparent 48%),
+      radial-gradient(1100px circle at 94% -18%, rgba(249, 115, 22, 0.15) 0%, transparent 42%),
+      linear-gradient(to right, rgba(30, 58, 138, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 58, 138, 0.03) 1px, transparent 1px),
+      var(--bg);
+    background-size: auto, auto, 32px 32px, 32px 32px, auto;
+    background-position: center, center, -1px -1px, -1px -1px, center;
+    color: var(--ink);
+    font-family: var(--font-body), sans-serif;
+    min-height: 100vh;
   }
 
   html {
     scroll-behavior: smooth;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading), sans-serif;
+    letter-spacing: -0.02em;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-6 py-2.5 bg-[#2563a0] text-white font-semibold rounded-lg hover:bg-[#2e6fb0] transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    box-shadow: 0 10px 20px -12px rgba(15, 76, 129, 0.65);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px -14px rgba(15, 76, 129, 0.75);
   }
 
   .btn-secondary {
-    @apply px-6 py-2.5 bg-[#2a5a8c] border border-white/30 text-gray-100 font-semibold rounded-lg hover:bg-[#14335c] hover:border-white/30 transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition-all duration-200;
+    color: var(--brand);
+    border-color: var(--border);
+    background: var(--surface);
+  }
+
+  .btn-secondary:hover {
+    border-color: color-mix(in srgb, var(--brand) 40%, white);
+    background: color-mix(in srgb, var(--surface) 90%, var(--surface-soft));
   }
 
   .btn-ghost {
-    @apply px-4 py-2 text-gray-100 hover:text-white hover:bg-white/15 rounded-lg transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200;
+    color: var(--ink-soft);
+  }
+
+  .btn-ghost:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--surface-soft) 85%, white);
   }
 
   .card {
-    @apply bg-[#2a5a8c] border border-white/30 rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+    @apply rounded-2xl border bg-white shadow-sm transition-all duration-200;
+    border-color: var(--border);
   }
 
   .input-field {
-    @apply w-full px-4 py-2.5 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563a0] focus:border-transparent transition-all duration-200 bg-[#2a5a8c];
+    @apply w-full rounded-xl border px-4 py-2.5 text-sm transition-all duration-150 placeholder:text-slate-400 focus:outline-none focus:ring-2;
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .input-field:focus {
+    border-color: var(--ring);
+    --tw-ring-color: color-mix(in srgb, var(--ring) 48%, transparent);
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em];
+  }
+
+  .surface-panel {
+    @apply rounded-2xl border bg-white shadow-[0_12px_40px_-30px_rgba(11,40,75,0.35)];
+    border-color: var(--border);
+  }
+
+  .fade-up {
+    animation: fadeUp 520ms ease both;
+  }
+
+  .ambient-grid {
+    background-image:
+      linear-gradient(to right, rgba(16, 36, 61, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(16, 36, 61, 0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    border-radius: 1rem;
+  }
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
