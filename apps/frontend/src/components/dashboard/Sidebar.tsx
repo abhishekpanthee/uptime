@@ -16,7 +16,7 @@ export function Sidebar() {
   const router = useRouter();
 
   function handleLogout() {
-    localStorage.removeItem("token");
+    localStorage.removeItem("uptimeToken");
     router.push("/login");
   }
 

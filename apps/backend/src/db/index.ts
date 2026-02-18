@@ -12,3 +12,5 @@ export const db = createClient(supabaseUrl, supabaseKey, {
     persistSession: false,
   }
 })
+
+export const supabase = db;

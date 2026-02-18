@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
-import { Activity, Plus, ArrowRight, Globe, AlertCircle } from "lucide-react";
+import { Activity, Plus, ArrowRight, Globe, AlertCircle, Lock } from "lucide-react";
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -104,13 +104,36 @@ export default function DashboardPage() {
                   {site.website_url.replace(/^https?:\/\//, '')}
                 </h3>
                 
-                <div className="flex items-center text-sm text-emerald-600 font-medium">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-                  Operational
+                <div className="flex flex-col gap-3 mt-4">
+                  {/* Status Indicator */}
+                  <div className="flex items-center text-sm text-emerald-600 font-medium">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
+                    Operational
+                  </div>
+
+                  {/* SSL Badge */}
+                  {site.ssl_days !== null && site.ssl_days !== undefined && (
+                    <div className="flex items-center">
+                      <span 
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest border ${
+                          site.ssl_days > 30 
+                            ? "bg-green-50 text-green-700 border-green-200" 
+                            : site.ssl_days > 7 
+                            ? "bg-yellow-50 text-yellow-700 border-yellow-200" 
+                            : "bg-red-50 text-red-700 border-red-200"
+                        }`}
+                      >
+                        <Lock className="w-3 h-3" />
+                        SSL: {site.ssl_days} days left
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-zinc-100">
-                  <p className="text-xs text-zinc-500">Click to view details →</p>
+                <div className="mt-5 pt-4 border-t border-zinc-100">
+                  <p className="text-xs text-zinc-500 group-hover:text-black transition-colors">
+                    Click to view details →
+                  </p>
                 </div>
               </Link>
             ))}

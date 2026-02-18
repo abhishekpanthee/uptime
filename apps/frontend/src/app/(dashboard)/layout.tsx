@@ -14,7 +14,7 @@ export default function DashboardLayout({
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("uptimeToken");
     if (!token) {
       router.push("/login");
     } else {
