@@ -19,7 +19,6 @@ export default function MonitorDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
 
-  // 1. Delete Functionality (Preserved exactly as you had it)
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this monitor?")) return;
     try {
@@ -30,7 +29,6 @@ export default function MonitorDetailsPage() {
     }
   }
 
-  // 2. Toggle Public/Private Visibility
   const togglePublicStatus = async () => {
     setToggling(true);
     try {
@@ -38,7 +36,6 @@ export default function MonitorDetailsPage() {
       await api.patch(`/websites/${encodeURIComponent(rawUrl)}/toggle-public`, {
         is_public: newStatus
       });
-      // Instantly update the UI
       setSiteData({ ...siteData, is_public: newStatus });
     } catch (err) {
       console.error("Failed to toggle public status", err);
@@ -47,29 +44,23 @@ export default function MonitorDetailsPage() {
     }
   };
 
-  // 3. Fetch Data dynamically based on Time Range
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       try {
-        // Hit the new stats endpoint we just made!
         const res = await api.get(`/websites/${encodeURIComponent(rawUrl)}/stats?range=${range}`);
         
         setSiteData(res.data.site);
         setStats(res.data.stats);
 
-        // Format the history for your PingChart component
-        // Format the history for your PingChart component
         const formattedData = res.data.history.map((item: any) => {
-          
-          // THE FIX: Force the browser to recognize this as UTC time
+
           let rawDate = item.checked_at;
           if (typeof rawDate === 'string' && !rawDate.endsWith('Z')) {
              rawDate += 'Z';
           }
           const dateObj = new Date(rawDate);
           
-          // If viewing 7d or 30d, include the date in the string. Otherwise just the time.
           const timeStr = range === '7d' || range === '30d'
             ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             : dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -90,10 +81,9 @@ export default function MonitorDetailsPage() {
     }
 
     fetchData();
-    // Refresh every 1 minute
     const interval = setInterval(fetchData, 60000); 
     return () => clearInterval(interval);
-  }, [rawUrl, range]); // Re-fetch whenever `range` changes!
+  }, [rawUrl, range]);
 
   const lastItem = history.length > 0 ? history[history.length - 1] : null;
   const isCurrentlyUp = lastItem ? lastItem.status === 200 : true;
@@ -109,7 +99,6 @@ export default function MonitorDetailsPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Top Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
         <div>
           <Link href="/dashboard" className="inline-flex items-center text-sm text-zinc-500 hover:text-black mb-4 transition-colors font-medium">
@@ -126,7 +115,6 @@ export default function MonitorDetailsPage() {
                  {rawUrl} ↗
                </a>
                <div className="flex items-center gap-3 mt-2 text-sm text-zinc-500">
-                  {/* Dynamic Status Badge */}
                   <span className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-medium text-xs border ${
                     isCurrentlyUp ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"
                   }`}>
@@ -134,7 +122,6 @@ export default function MonitorDetailsPage() {
                     {isCurrentlyUp ? "Operational" : "Downtime"}
                   </span>
                   
-                  {/* The Public/Private Toggle */}
                   {siteData && (
                     <div className="flex items-center gap-2 pl-3 border-l border-zinc-200">
                       <button 
@@ -164,7 +151,6 @@ export default function MonitorDetailsPage() {
         </button>
       </div>
 
-      {/* Dynamic Stats Grid (Expanded to 4 columns for SSL) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard 
           label={`Current Latency`} 
@@ -188,12 +174,10 @@ export default function MonitorDetailsPage() {
         />
       </div>
 
-      {/* Chart Section with Range Controls */}
       <div className="bg-white border border-zinc-200 shadow-sm rounded-xl p-6 mb-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-bold text-zinc-900">Response Time</h2>
           
-          {/* Range Selector Buttons */}
           <div className="flex bg-zinc-100 p-1 rounded-lg">
             {['1h', '24h', '7d', '30d'].map((t) => (
               <button
@@ -227,7 +211,6 @@ export default function MonitorDetailsPage() {
   );
 }
 
-// Reusable StatCard Component (Untouched styling)
 function StatCard({ label, value, icon }: any) {
   return (
     <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm flex items-start justify-between hover:border-zinc-300 transition-colors">
