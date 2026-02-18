@@ -30,12 +30,16 @@ export const websites = new Elysia({ prefix: '/websites' })
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-        const { data: existing } = await db.from('ownership')
+        const { data: existing, error: existingError } = await db.from('ownership')
             .select('*')
-            .match({ owner_id: userId, website_url: body.url })
-            .single();
+            .match({ owner_id: userId, website_url: body.url });
 
-        if (existing) {
+        if (existingError) {
+            set.status = 500;
+            return { error: existingError.message };
+        }
+
+        if (existing && existing.length > 0) {
             set.status = 409; 
             return { message: "You are already monitoring this website." };
         }
