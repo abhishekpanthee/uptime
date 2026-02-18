@@ -12,7 +12,6 @@ export default function StatusPage() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        // Fetching from the new PUBLIC endpoint we just made
         const res = await api.get("/public/status");
         setSystems(res.data);
       } catch (error) {
@@ -24,12 +23,10 @@ export default function StatusPage() {
     
     fetchStatus();
     
-    // Auto-refresh the page every 60 seconds
     const interval = setInterval(fetchStatus, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Dynamically check if ALL systems are 200 OK
   const allOperational = systems.length === 0 || systems.every(s => s.status === 200);
 
   return (
@@ -65,8 +62,6 @@ export default function StatusPage() {
 
       <div className="max-w-3xl mx-auto px-4 -mt-8 mb-12">
         <div className="bg-white rounded-2xl shadow-xl border border-zinc-100 overflow-hidden">
-
-          {/* Dynamic Banner: Turns Red if a site is down */}
           <div className={`px-6 py-5 border-b border-zinc-100 flex items-center gap-3 ${allOperational ? 'bg-green-50' : 'bg-red-50'}`}>
             {allOperational ? (
               <CheckCircle className="w-6 h-6 text-green-600" />
@@ -105,8 +100,6 @@ export default function StatusPage() {
                       </span>
                       <span className="font-medium text-zinc-900">{site.url.replace(/^https?:\/\//, '')}</span>
                     </div>
-
-                    {/* SSL Badge */}
                     {site.ssl_days !== null && site.ssl_days !== undefined && (
                       <div className="ml-7 flex items-center">
                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${

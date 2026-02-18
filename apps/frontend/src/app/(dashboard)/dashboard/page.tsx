@@ -100,12 +100,10 @@ export default function DashboardPage() {
                   )}
                 </div>
                 
-                {/* NEW: Displays the Friendly Name if it exists, otherwise the URL */}
                 <h3 className="font-semibold text-zinc-900 truncate text-lg">
                   {site.site_name || site.website_url.replace(/^https?:\/\//, '')}
                 </h3>
                 
-                {/* NEW: If they used a friendly name, show the actual URL underneath */}
                 {site.site_name && (
                   <p className="text-xs text-zinc-500 truncate mt-1">{site.website_url}</p>
                 )}
