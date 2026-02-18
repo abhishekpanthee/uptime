@@ -22,10 +22,17 @@ export default function RegisterPage() {
     const password = formData.get("password");
 
     try {
-      await api.post(process.env.NEXT_PUBLIC_API_URL + "/auth/register", { name, email, password });
-      router.push("/login");
+      // 1. Cleaned up API call
+      const res = await api.post("/auth/register", { name, email, password });
+      
+      // 2. ✅ Auto-login: Save the token immediately
+      localStorage.setItem("uptimeToken", res.data.token);
+      
+      // 3. ✅ Send them straight to the dashboard instead of the login page
+      router.push("/dashboard");
     } catch (err: any) {
-      const msg = err.response?.data?.error || "Registration failed";
+      // Safely extract Elysia's error message
+      const msg = err.response?.data?.message || err.response?.data?.error || "Registration failed";
       setError(msg);
     } finally {
       setLoading(false);

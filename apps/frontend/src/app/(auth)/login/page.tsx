@@ -21,13 +21,17 @@ export default function LoginPage() {
     const password = formData.get("password");
 
     try {
-      const res = await api.post(process.env.NEXT_PUBLIC_API_URL + "/auth/login", { email, password });
+      // Cleaned up the URL path
+      const res = await api.post("/auth/login", { email, password });
 
-      localStorage.setItem("uptimeToken", res.data.accessToken);
+      // ✅ FIX: Use res.data.token to match your new backend
+      localStorage.setItem("uptimeToken", res.data.token);
 
+      // Redirect to dashboard
       router.push("/dashboard");
     } catch (err: any) {
-      const msg = err.response?.data?.error || "Something went wrong";
+      // Safely extract the error message from the backend
+      const msg = err.response?.data?.message || err.message || "Something went wrong";
       setError(msg);
     } finally {
       setLoading(false);

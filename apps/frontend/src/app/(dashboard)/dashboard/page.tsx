@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
-import { Activity, Plus, ArrowRight, Globe, AlertCircle } from "lucide-react";
+import { Activity, Plus, Globe, Lock } from "lucide-react";
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -57,15 +57,15 @@ export default function DashboardPage() {
           </div>
           <Link 
             href="/dashboard/add" 
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors font-medium text-sm"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             Add Monitor
           </Link>
         </div>
 
         {websites.length === 0 ? (
-          <div className="card text-center py-24 px-8 border-2 border-dashed border-zinc-200">
+          <div className="card text-center py-24 px-8 border-2 border-dashed border-zinc-200 bg-white rounded-2xl">
             <div className="w-16 h-16 bg-gradient-to-br from-zinc-100 to-zinc-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-zinc-400">
               <Activity className="w-8 h-8" />
             </div>
@@ -75,7 +75,7 @@ export default function DashboardPage() {
             </p>
             <Link 
               href="/dashboard/add" 
-              className="btn-primary inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors font-medium text-sm"
             >
               <Plus className="w-4 h-4" />
               Create Your First Monitor
@@ -87,30 +87,57 @@ export default function DashboardPage() {
               <Link 
                 key={site.website_url} 
                 href={`/dashboard/monitor/${encodeURIComponent(site.website_url)}`}
-                className="card group p-6 hover:border-zinc-200 hover:shadow-lg transition-all duration-300"
+                className="bg-white rounded-xl group p-6 border border-zinc-200 hover:border-zinc-300 hover:shadow-lg transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center border border-blue-200 group-hover:from-blue-200 transition-all">
                     <Globe className="w-6 h-6 text-[#002147]" />
                   </div>
                   {site.is_public && (
-                     <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                     <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                        Public
                      </span>
                   )}
                 </div>
                 
-                <h3 className="font-semibold text-zinc-900 truncate mb-2 text-lg">
-                  {site.website_url.replace(/^https?:\/\//, '')}
+                {/* NEW: Displays the Friendly Name if it exists, otherwise the URL */}
+                <h3 className="font-semibold text-zinc-900 truncate text-lg">
+                  {site.site_name || site.website_url.replace(/^https?:\/\//, '')}
                 </h3>
                 
-                <div className="flex items-center text-sm text-emerald-600 font-medium">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-                  Operational
+                {/* NEW: If they used a friendly name, show the actual URL underneath */}
+                {site.site_name && (
+                  <p className="text-xs text-zinc-500 truncate mt-1">{site.website_url}</p>
+                )}
+                
+                <div className="flex flex-col gap-3 mt-4">
+                  <div className="flex items-center text-sm text-emerald-600 font-medium">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
+                    Operational
+                  </div>
+
+                  {site.ssl_days !== null && site.ssl_days !== undefined && (
+                    <div className="flex items-center">
+                      <span 
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest border ${
+                          site.ssl_days > 30 
+                            ? "bg-green-50 text-green-700 border-green-200" 
+                            : site.ssl_days > 7 
+                            ? "bg-yellow-50 text-yellow-700 border-yellow-200" 
+                            : "bg-red-50 text-red-700 border-red-200"
+                        }`}
+                      >
+                        <Lock className="w-3 h-3" />
+                        SSL: {site.ssl_days} days left
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-zinc-100">
-                  <p className="text-xs text-zinc-500">Click to view details →</p>
+                <div className="mt-5 pt-4 border-t border-zinc-100">
+                  <p className="text-xs text-zinc-500 group-hover:text-black transition-colors">
+                    Click to view details →
+                  </p>
                 </div>
               </Link>
             ))}
