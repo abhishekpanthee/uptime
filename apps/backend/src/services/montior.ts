@@ -3,7 +3,7 @@ import { db } from "../db";
 import https from "https";
 import tls from "node:tls";
 
-const FAILED_CHECK_PING_MS = 10000;
+const FAILED_CHECK_PING_MS = 2500;
 
 function checkSSL(url: string): Promise<number | null> {
   return new Promise((resolve) => {

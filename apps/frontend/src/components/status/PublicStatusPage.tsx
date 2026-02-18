@@ -50,11 +50,17 @@ interface TimelineChartPoint {
   label: string;
   ping: number | null;
   status: number | null;
+  is_alert: boolean;
+  normal_ping: number | null;
+  alert_ping: number | null;
 }
 
 interface DailyTrendPoint extends DailyHistoryPoint {
   label: string;
   trend_ping: number | null;
+  trend_is_alert: boolean;
+  trend_normal: number | null;
+  trend_alert: number | null;
   has_data: boolean;
   is_estimated: boolean;
 }
@@ -65,6 +71,10 @@ interface PingStats {
   max: number | null;
   points: number;
 }
+
+const ALERT_PING_MS = 2500;
+const NEPAL_TIMEZONE = "Asia/Kathmandu";
+const NEPAL_DAY_OFFSET = "+05:45";
 
 export function PublicStatusPage() {
   const [systems, setSystems] = useState<PublicSystemStatus[]>([]);
@@ -130,8 +140,10 @@ export function PublicStatusPage() {
                     ? lastUpdated.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: NEPAL_TIMEZONE,
                       })
                     : "Waiting..."}
+                  {" NPT"}
                 </div>
               </div>
             </div>
@@ -176,6 +188,7 @@ function ServiceRowWithHistory({
   index: number;
 }) {
   const siteUp = site.status === 200;
+  const siteUnresponsive = site.status === 0 || site.status === null || site.status === undefined;
   const host = site.url.replace(/^https?:\/\//, "");
 
   const [expanded, setExpanded] = useState(false);
@@ -298,12 +311,39 @@ function ServiceRowWithHistory({
       )
       .filter((entry): entry is { index: number; value: number } => entry !== null);
 
-    return dailyChartData.map((point, index) => {
+    const mapped = dailyChartData.map((point, index) => {
       const hasData = typeof point.avg_ping === "number";
       if (hasData)
         return {
           ...point,
           trend_ping: point.avg_ping,
+          trend_is_alert:
+            (point.uptime_percentage !== null &&
+              point.uptime_percentage !== undefined &&
+              point.uptime_percentage < 100) ||
+            (point.avg_ping !== null &&
+              point.avg_ping !== undefined &&
+              point.avg_ping > ALERT_PING_MS),
+          trend_normal:
+            point.avg_ping !== null &&
+            point.avg_ping !== undefined &&
+            !(
+              (point.uptime_percentage !== null &&
+                point.uptime_percentage !== undefined &&
+                point.uptime_percentage < 100) ||
+              point.avg_ping > ALERT_PING_MS
+            )
+              ? point.avg_ping
+              : null,
+          trend_alert:
+            point.avg_ping !== null &&
+            point.avg_ping !== undefined &&
+            ((point.uptime_percentage !== null &&
+              point.uptime_percentage !== undefined &&
+              point.uptime_percentage < 100) ||
+              point.avg_ping > ALERT_PING_MS)
+              ? point.avg_ping
+              : null,
           has_data: true,
           is_estimated: false,
         };
@@ -320,10 +360,28 @@ function ServiceRowWithHistory({
       return {
         ...point,
         trend_ping: trendPing,
+        trend_is_alert: trendPing !== null && trendPing > ALERT_PING_MS,
+        trend_normal: trendPing !== null && trendPing <= ALERT_PING_MS ? trendPing : null,
+        trend_alert: trendPing !== null && trendPing > ALERT_PING_MS ? trendPing : null,
         has_data: false,
         is_estimated: trendPing !== null,
       };
     });
+
+    for (let i = 1; i < mapped.length; i += 1) {
+      const previous = mapped[i - 1];
+      const current = mapped[i];
+      if (previous.trend_ping === null || current.trend_ping === null) continue;
+      if (previous.trend_is_alert === current.trend_is_alert) continue;
+
+      if (current.trend_is_alert) {
+        mapped[i - 1].trend_alert = previous.trend_ping;
+      } else {
+        mapped[i - 1].trend_normal = previous.trend_ping;
+      }
+    }
+
+    return mapped;
   }, [dailyChartData]);
 
   const dailyDomainMeta = useMemo(() => {
@@ -370,25 +428,37 @@ function ServiceRowWithHistory({
     if (!selectedDay) return [];
 
     if (selectedTimeline.length > 0) {
-      return selectedTimeline.map((point) => ({
+      const rawPoints = selectedTimeline.map((point) => ({
         checked_at: point.checked_at,
         ping: point.ping,
         status: point.status,
         label: formatTime(point.checked_at),
+        is_alert: isAlertPoint(point.status, point.ping),
+        normal_ping: null,
+        alert_ping: null,
       }));
+      return withAlertSegments(rawPoints);
     }
 
-    return selectedHourly.map((point) => ({
-      checked_at: `${selectedDay}T${String(point.hour).padStart(2, "0")}:00:00.000Z`,
-      ping: point.avg_ping,
-      status:
+    const rawPoints = selectedHourly.map((point) => {
+      const status =
         point.uptime_percentage !== null && point.uptime_percentage !== undefined
           ? point.uptime_percentage >= 99
             ? 200
             : 500
-          : null,
+          : null;
+      const ping = point.avg_ping;
+      return {
+      checked_at: `${selectedDay}T${String(point.hour).padStart(2, "0")}:00:00.000Z`,
+      ping,
+      status,
       label: point.label,
-    }));
+      is_alert: isAlertPoint(status, ping),
+      normal_ping: null,
+      alert_ping: null,
+    };
+    });
+    return withAlertSegments(rawPoints);
   }, [selectedDay, selectedHourly, selectedTimeline]);
 
   const panel24hStats = useMemo<PingStats>(() => {
@@ -425,25 +495,37 @@ function ServiceRowWithHistory({
     if (!detailDay) return [];
 
     if (modalTimeline.length > 0) {
-      return modalTimeline.map((point) => ({
+      const rawPoints = modalTimeline.map((point) => ({
         checked_at: point.checked_at,
         ping: point.ping,
         status: point.status,
         label: formatTime(point.checked_at),
+        is_alert: isAlertPoint(point.status, point.ping),
+        normal_ping: null,
+        alert_ping: null,
       }));
+      return withAlertSegments(rawPoints);
     }
 
-    return modalHourly.map((point) => ({
-      checked_at: `${detailDay}T${String(point.hour).padStart(2, "0")}:00:00.000Z`,
-      ping: point.avg_ping,
-      status:
+    const rawPoints = modalHourly.map((point) => {
+      const status =
         point.uptime_percentage !== null && point.uptime_percentage !== undefined
           ? point.uptime_percentage >= 99
             ? 200
             : 500
-          : null,
+          : null;
+      const ping = point.avg_ping;
+      return {
+      checked_at: `${detailDay}T${String(point.hour).padStart(2, "0")}:00:00.000Z`,
+      ping,
+      status,
       label: point.label,
-    }));
+      is_alert: isAlertPoint(status, ping),
+      normal_ping: null,
+      alert_ping: null,
+    };
+    });
+    return withAlertSegments(rawPoints);
   }, [detailDay, modalHourly, modalTimeline]);
 
   const modalStats = useMemo<PingStats>(() => {
@@ -555,10 +637,15 @@ function ServiceRowWithHistory({
                   <CheckCircle className="h-3.5 w-3.5" />
                   Operational
                 </>
+              ) : siteUnresponsive ? (
+                <>
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Unoperational
+                </>
               ) : (
                 <>
                   <AlertTriangle className="h-3.5 w-3.5" />
-                  Incident
+                  Degraded
                 </>
               )}
             </span>
@@ -715,25 +802,39 @@ function ServiceRowWithHistory({
                           />
                           <Line
                             type="monotone"
-                            dataKey="ping"
+                            dataKey="normal_ping"
                             stroke="#1f4d95"
                             strokeWidth={2.3}
+                            dot={false}
+                            activeDot={{ r: 3.4, stroke: "#fff", strokeWidth: 1.6 }}
+                            connectNulls={false}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="alert_ping"
+                            stroke="#dc2626"
+                            strokeWidth={2.5}
                             dot={(props: any) => {
                               const point = props?.payload as TimelineChartPoint | undefined;
-                              if (!isIncidentStatus(point?.status)) return null;
+                              if (
+                                !isIncidentStatus(point?.status) &&
+                                !(typeof point?.ping === "number" && point.ping > ALERT_PING_MS)
+                              ) {
+                                return null;
+                              }
                               if (typeof props?.cx !== "number" || typeof props?.cy !== "number") return null;
                               return (
                                 <circle
                                   cx={props.cx}
                                   cy={props.cy}
-                                  r={2.8}
+                                  r={3}
                                   fill="#dc2626"
                                   stroke="#fff"
                                   strokeWidth={1.1}
                                 />
                               );
                             }}
-                            activeDot={{ r: 3.4, stroke: "#fff", strokeWidth: 1.6 }}
+                            activeDot={{ r: 3.6, stroke: "#fff", strokeWidth: 1.8, fill: "#dc2626" }}
                             connectNulls={false}
                           />
                         </LineChart>
@@ -824,9 +925,25 @@ function ServiceRowWithHistory({
                         />
                         <Line
                           type="monotone"
-                          dataKey="trend_ping"
+                          dataKey="trend_normal"
                           stroke="#1f4d95"
                           strokeWidth={2.3}
+                          dot={false}
+                          connectNulls={false}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="trend_alert"
+                          stroke="#dc2626"
+                          strokeWidth={2.5}
+                          dot={false}
+                          connectNulls={false}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="trend_ping"
+                          stroke="transparent"
+                          strokeWidth={0}
                           dot={(props: any) => {
                             const payload = props?.payload as DailyTrendPoint | undefined;
                             const day = payload?.date;
@@ -841,30 +958,43 @@ function ServiceRowWithHistory({
                               payload?.uptime_percentage !== null &&
                               payload?.uptime_percentage !== undefined &&
                               payload.uptime_percentage < 100;
+                            const hasHighLatency =
+                              payload?.trend_ping !== null &&
+                              payload?.trend_ping !== undefined &&
+                              payload.trend_ping > ALERT_PING_MS;
                             const fill = isSelected
                               ? "#f97316"
-                              : hasIncident
+                              : hasIncident || hasHighLatency
                               ? "#dc2626"
                               : checks > 0
                               ? "#1f4d95"
                               : "#c8d4e7";
 
                             return (
-                              <circle
-                                cx={props.cx}
-                                cy={props.cy}
-                                r={isSelected ? 4.4 : 3.3}
-                                fill={fill}
-                                stroke="#ffffff"
-                                strokeWidth={1.4}
-                                style={{ cursor: "pointer" }}
-                                onClick={() => {
-                                  if (day) openDayDetail(day);
-                                }}
-                              />
+                              <g>
+                                <circle
+                                  cx={props.cx}
+                                  cy={props.cy}
+                                  r={isSelected ? 4.4 : 3.3}
+                                  fill={fill}
+                                  stroke="#ffffff"
+                                  strokeWidth={1.4}
+                                  style={{ cursor: "pointer" }}
+                                />
+                                <circle
+                                  cx={props.cx}
+                                  cy={props.cy}
+                                  r={10}
+                                  fill="transparent"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => {
+                                    if (day) openDayDetail(day);
+                                  }}
+                                />
+                              </g>
                             );
                           }}
-                          activeDot={{ r: 4.8, stroke: "#ffffff", strokeWidth: 1.6 }}
+                          activeDot={false}
                           connectNulls={false}
                         />
                       </LineChart>
@@ -1103,12 +1233,26 @@ function DayDetailModal({
                   />
                   <Line
                     type="monotone"
-                    dataKey="ping"
+                    dataKey="normal_ping"
                     stroke="#1f4d95"
                     strokeWidth={2.3}
+                    dot={false}
+                    activeDot={{ r: 3.6, stroke: "#fff", strokeWidth: 1.8 }}
+                    connectNulls={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="alert_ping"
+                    stroke="#dc2626"
+                    strokeWidth={2.5}
                     dot={(props: any) => {
                       const point = props?.payload as TimelineChartPoint | undefined;
-                      if (!isIncidentStatus(point?.status)) return null;
+                      if (
+                        !isIncidentStatus(point?.status) &&
+                        !(typeof point?.ping === "number" && point.ping > ALERT_PING_MS)
+                      ) {
+                        return null;
+                      }
                       if (typeof props?.cx !== "number" || typeof props?.cy !== "number") return null;
                       return (
                         <circle
@@ -1121,7 +1265,7 @@ function DayDetailModal({
                         />
                       );
                     }}
-                    activeDot={{ r: 3.6, stroke: "#fff", strokeWidth: 1.8 }}
+                    activeDot={{ r: 3.6, stroke: "#fff", strokeWidth: 1.8, fill: "#dc2626" }}
                     connectNulls={false}
                   />
                 </LineChart>
@@ -1289,21 +1433,53 @@ function InlineMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
+function withAlertSegments<T extends TimelineChartPoint>(points: T[]) {
+  const rows = points.map((point) => ({
+    ...point,
+    normal_ping: point.is_alert || point.ping === null ? null : point.ping,
+    alert_ping: point.is_alert && point.ping !== null ? point.ping : null,
+  }));
+
+  for (let i = 1; i < rows.length; i += 1) {
+    const previous = rows[i - 1];
+    const current = rows[i];
+
+    if (previous.ping === null || current.ping === null) continue;
+    if (previous.is_alert === current.is_alert) continue;
+
+    if (current.is_alert) {
+      rows[i - 1].alert_ping = previous.ping;
+    } else {
+      rows[i - 1].normal_ping = previous.ping;
+    }
+  }
+
+  return rows as T[];
+}
+
 function isIncidentStatus(status: number | null | undefined) {
   return typeof status === "number" && status !== 200;
+}
+
+function isAlertPoint(status: number | null | undefined, ping: number | null | undefined) {
+  if (isIncidentStatus(status)) return true;
+  return typeof ping === "number" && ping > ALERT_PING_MS;
 }
 
 function formatStatusLabel(status: number | null | undefined) {
   if (status === 200) return "Operational";
   if (typeof status === "number" && status > 0) return `HTTP ${status}`;
-  if (status === 0) return "Down / timeout";
+  if (status === 0) return "Unoperational (no response)";
   return "No status";
 }
 
 function formatDay(day: string) {
-  const [year, month, date] = day.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, date, 12, 0, 0));
-  return parsed.toLocaleDateString([], { month: "short", day: "numeric" });
+  const parsed = new Date(`${day}T00:00:00${NEPAL_DAY_OFFSET}`);
+  return parsed.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    timeZone: NEPAL_TIMEZONE,
+  });
 }
 
 function formatTime(timestamp: string) {
@@ -1321,16 +1497,17 @@ function formatTime(timestamp: string) {
   return parsed.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: NEPAL_TIMEZONE,
   });
 }
 
 function formatDayLong(day: string) {
-  const [year, month, date] = day.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, date, 12, 0, 0));
+  const parsed = new Date(`${day}T00:00:00${NEPAL_DAY_OFFSET}`);
   return parsed.toLocaleDateString([], {
     weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: NEPAL_TIMEZONE,
   });
 }

@@ -2,6 +2,11 @@ import { Elysia } from "elysia";
 import { db } from "../db";
 
 const DEFAULT_NOTICE_API = "https://cdn.tcioe.edu.np";
+const DOWN_TIMEOUT_MS = 2500;
+const NEPAL_TIMEZONE = "Asia/Kathmandu";
+const NEPAL_OFFSET_MINUTES = 5 * 60 + 45;
+const NEPAL_OFFSET_MS = NEPAL_OFFSET_MINUTES * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function clampInt(value: string | number | undefined, min: number, max: number, fallback: number) {
   const parsed = Number(value);
@@ -11,6 +16,42 @@ function clampInt(value: string | number | undefined, min: number, max: number, 
 
 function toDayKey(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+
+function toNepalDate(date: Date) {
+  return new Date(date.getTime() + NEPAL_OFFSET_MS);
+}
+
+function toNepalDayKey(date: Date) {
+  const nepal = toNepalDate(date);
+  return toDayKey(
+    new Date(
+      Date.UTC(nepal.getUTCFullYear(), nepal.getUTCMonth(), nepal.getUTCDate(), 0, 0, 0, 0)
+    )
+  );
+}
+
+function toNepalHour(date: Date) {
+  return toNepalDate(date).getUTCHours();
+}
+
+function nepalDayStartToUtc(day: string) {
+  const [year, month, date] = day.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, date, 0, 0, 0, 0) - NEPAL_OFFSET_MS);
+}
+
+function nepalTodayStartToUtc(now: Date) {
+  const nepalNow = toNepalDate(now);
+  return new Date(
+    Date.UTC(nepalNow.getUTCFullYear(), nepalNow.getUTCMonth(), nepalNow.getUTCDate(), 0, 0, 0, 0) -
+      NEPAL_OFFSET_MS
+  );
+}
+
+function normalizePing(status: number | null | undefined, ping: number | null | undefined) {
+  if (ping !== null && ping !== undefined) return Number(ping);
+  if (typeof status === "number" && status !== 200) return DOWN_TIMEOUT_MS;
+  return null;
 }
 
 export const publicRoutes = new Elysia({ prefix: "/public" })
@@ -93,7 +134,7 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
             url: site.website_url,
             ssl_days: site.ssl_days,
             status: latestPing?.status || 0,
-            ping: latestPing?.ping5 || null,
+            ping: normalizePing(latestPing?.status, latestPing?.ping5),
             last_checked: latestPing?.checked_at || null,
             checks_24h: checks24h,
             uptime_24h: checks24h > 0 ? Math.round((up24h / checks24h) * 10000) / 100 : null,
@@ -112,9 +153,8 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
       const targetUrl = decodeURIComponent(params.url);
       const days = clampInt((query as Record<string, string | undefined>)?.days, 1, 30, 30);
 
-      const start = new Date();
-      start.setUTCHours(0, 0, 0, 0);
-      start.setUTCDate(start.getUTCDate() - (days - 1));
+      const todayStartUtc = nepalTodayStartToUtc(new Date());
+      const start = new Date(todayStartUtc.getTime() - (days - 1) * DAY_MS);
 
       const { data: checks, error } = await db
         .from("analytics")
@@ -131,19 +171,19 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
       >();
 
       for (let i = 0; i < days; i += 1) {
-        const day = new Date(start);
-        day.setUTCDate(start.getUTCDate() + i);
-        buckets.set(toDayKey(day), { total: 0, up: 0, pingTotal: 0, pingCount: 0 });
+        const day = new Date(start.getTime() + i * DAY_MS);
+        buckets.set(toNepalDayKey(day), { total: 0, up: 0, pingTotal: 0, pingCount: 0 });
       }
 
       for (const row of checks ?? []) {
-        const key = toDayKey(new Date(row.checked_at));
+        const key = toNepalDayKey(new Date(row.checked_at));
         const bucket = buckets.get(key);
         if (!bucket) continue;
         bucket.total += 1;
         if (row.status === 200) bucket.up += 1;
-        if (row.ping5 !== null && row.ping5 !== undefined) {
-          bucket.pingTotal += Number(row.ping5);
+        const normalizedPing = normalizePing(row.status, row.ping5);
+        if (normalizedPing !== null) {
+          bucket.pingTotal += normalizedPing;
           bucket.pingCount += 1;
         }
       }
@@ -171,8 +211,8 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
         return { error: "Invalid day format. Use YYYY-MM-DD." };
       }
 
-      const start = new Date(`${day}T00:00:00.000Z`);
-      const end = new Date(`${day}T23:59:59.999Z`);
+      const start = nepalDayStartToUtc(day);
+      const end = new Date(start.getTime() + DAY_MS - 1);
 
       const { data: checks, error } = await db
         .from("analytics")
@@ -194,13 +234,14 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
       }));
 
       for (const row of checks ?? []) {
-        const hour = new Date(row.checked_at).getUTCHours();
+        const hour = toNepalHour(new Date(row.checked_at));
         const bucket = hourly[hour];
         if (!bucket) continue;
         bucket.checks += 1;
         if (row.status === 200) bucket.up += 1;
-        if (row.ping5 !== null && row.ping5 !== undefined) {
-          bucket.pingTotal += Number(row.ping5);
+        const normalizedPing = normalizePing(row.status, row.ping5);
+        if (normalizedPing !== null) {
+          bucket.pingTotal += normalizedPing;
           bucket.pingCount += 1;
         }
       }
@@ -208,10 +249,10 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
       return {
         url: targetUrl,
         day,
-        timezone: "UTC",
+        timezone: NEPAL_TIMEZONE,
         timeline: (checks ?? []).map((row) => ({
           checked_at: row.checked_at,
-          ping: row.ping5 !== null && row.ping5 !== undefined ? Number(row.ping5) : null,
+          ping: normalizePing(row.status, row.ping5),
           status: row.status ?? null,
         })),
         hourly: hourly.map((item) => ({
