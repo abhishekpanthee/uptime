@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Globe, Settings, LogOut, Home } from "lucide-react";
+import { LayoutDashboard, Globe, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Home", href: "/", icon: Home },
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Public Status", href: "/status", icon: Globe },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },

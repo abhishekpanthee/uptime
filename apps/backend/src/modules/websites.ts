@@ -11,7 +11,7 @@ const getUserId = async (headers: any, jwt: any) => {
 };
 
 export const websites = new Elysia({ prefix: '/websites' })
-    .use(jwt({ name: 'jwt', secret: process.env.JWT_SECRET! }))
+    .use(jwt({ name: 'jwt', secret: Bun.env.JWT_SECRET! }))
 
     .get('/', async ({ headers, jwt, set }) => {
         const userId = await getUserId(headers, jwt);
@@ -23,6 +23,7 @@ export const websites = new Elysia({ prefix: '/websites' })
         return data;
     })
 
+    
     .post('/', async ({ headers, jwt, body, set }) => {
         const userId = await getUserId(headers, jwt);
         if (!userId) { set.status = 401; return { error: "Unauthorized" }; }

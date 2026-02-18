@@ -2,24 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/useAuth";
+import { Sidebar } from "@/components/dashboard/Sidebar";
 import Link from "next/link";
-import { CheckCircle, AlertTriangle, Loader2, Home } from "lucide-react";
+import { CheckCircle, AlertTriangle, Loader2, LayoutDashboard } from "lucide-react";
 
 export default function StatusPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [systems, setSystems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     api.get("/websites") 
       .then(res => setSystems(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [isAuthenticated]);
 
   const allOperational = systems.length > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 font-sans">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 font-sans">
       <header className="px-6 py-4 flex items-center justify-between border-b border-zinc-100/50 bg-white/60 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-[#002147] to-[#005bb5] rounded-lg flex items-center justify-center shadow-sm">
@@ -29,9 +36,9 @@ export default function StatusPage() {
             Uptime Monitor
           </span>
         </div>
-        <Link href="/" className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-[#002147] transition-colors px-4 py-2 rounded-lg hover:bg-zinc-100/50">
-          <Home className="w-4 h-4" />
-          Back to Home
+        <Link href="/dashboard" className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-[#002147] transition-colors px-4 py-2 rounded-lg hover:bg-zinc-100/50">
+          <LayoutDashboard className="w-4 h-4" />
+          Back to Dashboard
         </Link>
       </header>
 
@@ -61,7 +68,7 @@ export default function StatusPage() {
           </div>
 
           <div className="divide-y divide-zinc-100">
-            {loading ? (
+            {authLoading || loading ? (
               <div className="p-8 flex justify-center text-zinc-400">
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
                 Checking services...
@@ -92,6 +99,7 @@ export default function StatusPage() {
             Administrator Login &rarr;
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );
