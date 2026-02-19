@@ -3,6 +3,8 @@ import { db } from "../db";
 import https from "https";
 import tls from "node:tls";
 
+const FAILED_CHECK_PING_MS = 10000;
+
 function checkSSL(url: string): Promise<number | null> {
   return new Promise((resolve) => {
     try {
@@ -98,7 +100,7 @@ async function runCheck() {
       } catch (err: any) {
         console.log(`   Failed: ${err.message}`);
         status = 0;
-        ping = null;
+        ping = FAILED_CHECK_PING_MS;
       }
 
       await db.from("analytics").insert({

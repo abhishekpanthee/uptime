@@ -4,11 +4,25 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/useAuth";
 import Link from "next/link";
-import { Activity, Plus, Globe, Lock } from "lucide-react";
+import {
+  Activity,
+  Globe,
+  Lock,
+  Plus,
+  ShieldCheck,
+  TriangleAlert,
+} from "lucide-react";
+
+interface WebsiteMonitor {
+  website_url: string;
+  site_name: string | null;
+  is_public: boolean;
+  ssl_days: number | null;
+}
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [websites, setWebsites] = useState<any[]>([]);
+  const [websites, setWebsites] = useState<WebsiteMonitor[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,112 +50,182 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="max-w-5xl mx-auto p-6">
-        <div className="h-8 w-48 bg-zinc-100 rounded animate-pulse mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mx-auto max-w-5xl p-2">
+        <div className="mb-8 h-8 w-56 animate-pulse rounded bg-[#dbe5f3]" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {[1, 2].map((i) => (
-            <div key={i} className="h-40 bg-zinc-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-40 animate-pulse rounded-2xl bg-[#dbe5f3]" />
           ))}
         </div>
       </div>
     );
   }
 
+  const publicCount = websites.filter((site) => site.is_public).length;
+  const sslWarningCount = websites.filter(
+    (site) => site.ssl_days !== null && site.ssl_days <= 14
+  ).length;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-10">
+    <div>
+      <div className="surface-panel fade-up mb-6 overflow-hidden">
+        <div className="border-b border-[var(--border)] bg-gradient-to-r from-[#0f4c81] to-[#1b6aa8] px-6 py-8 text-white sm:flex sm:items-end sm:justify-between sm:px-8">
           <div>
-            <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Dashboard</h1>
-            <p className="text-zinc-600 text-sm mt-2">Monitor and manage your website uptime</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#d5e9ff]">
+              Admin Console
+            </p>
+            <h1 className="mt-2 text-3xl font-bold">Service Monitoring Dashboard</h1>
+            <p className="mt-2 text-sm text-[#d6e8fb]">
+              Manage service checks, public visibility, and operational health.
+            </p>
           </div>
-          <Link 
-            href="/dashboard/add" 
-            className="btn-primary flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors font-medium text-sm"
-          >
-            <Plus className="w-4 h-4" />
+          <Link href="/dashboard/add" className="btn-primary mt-4 sm:mt-0">
+            <Plus className="h-4 w-4" />
             Add Monitor
           </Link>
         </div>
+        <div className="grid gap-4 px-6 py-5 sm:grid-cols-3 sm:px-8">
+          <DashboardMetric
+            label="Total Monitors"
+            value={String(websites.length)}
+            helper="All configured sites"
+          />
+          <DashboardMetric
+            label="Public on /status"
+            value={String(publicCount)}
+            helper="Visible to students"
+          />
+          <DashboardMetric
+            label="SSL Warnings"
+            value={String(sslWarningCount)}
+            helper="<= 14 days remaining"
+            tone={sslWarningCount > 0 ? "warning" : "success"}
+          />
+        </div>
+      </div>
 
-        {websites.length === 0 ? (
-          <div className="card text-center py-24 px-8 border-2 border-dashed border-zinc-200 bg-white rounded-2xl">
-            <div className="w-16 h-16 bg-gradient-to-br from-zinc-100 to-zinc-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-zinc-400">
-              <Activity className="w-8 h-8" />
+      {websites.length === 0 ? (
+        <div className="surface-panel text-center">
+          <div className="mx-auto max-w-xl px-6 py-16">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eff4fb] text-[#0f4c81]">
+              <Activity className="h-8 w-8" />
             </div>
-            <h3 className="text-xl font-bold text-zinc-900 mb-2">No monitors created yet</h3>
-            <p className="text-zinc-600 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-              Start monitoring your first website today. Add monitors for your critical services and track their uptime.
+            <h2 className="text-2xl font-bold text-[var(--ink)]">No monitors created yet</h2>
+            <p className="mt-2 text-sm text-[var(--ink-soft)]">
+              Add your first monitor to begin tracking uptime for college web services.
             </p>
-            <Link 
-              href="/dashboard/add" 
-              className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors font-medium text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Create Your First Monitor
+            <Link href="/dashboard/add" className="btn-primary mt-6">
+              <Plus className="h-4 w-4" />
+              Create First Monitor
             </Link>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {websites.map((site) => (
-              <Link 
-                key={site.website_url} 
-                href={`/dashboard/monitor/${encodeURIComponent(site.website_url)}`}
-                className="bg-white rounded-xl group p-6 border border-zinc-200 hover:border-zinc-300 hover:shadow-lg transition-all duration-300"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center border border-blue-200 group-hover:from-blue-200 transition-all">
-                    <Globe className="w-6 h-6 text-[#002147]" />
-                  </div>
-                  {site.is_public && (
-                     <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                       Public
-                     </span>
-                  )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {websites.map((site, index) => (
+            <Link
+              key={site.website_url}
+              href={`/dashboard/monitor/${encodeURIComponent(site.website_url)}`}
+              className="surface-panel fade-up group p-6 hover:-translate-y-0.5 hover:border-[#bfd0e6]"
+              style={{ animationDelay: `${Math.min(index * 70, 300)}ms` }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eff4fb] text-[#0f4c81]">
+                  <Globe className="h-5 w-5" />
                 </div>
-                
-                <h3 className="font-semibold text-zinc-900 truncate text-lg">
-                  {site.site_name || site.website_url.replace(/^https?:\/\//, '')}
-                </h3>
-                
-                {site.site_name && (
-                  <p className="text-xs text-zinc-500 truncate mt-1">{site.website_url}</p>
+                {site.is_public ? (
+                  <span className="badge bg-[#e9f3ff] text-[#0f4c81]">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    Public
+                  </span>
+                ) : (
+                  <span className="badge bg-[#f2f5f9] text-[#61748f]">Private</span>
                 )}
-                
-                <div className="flex flex-col gap-3 mt-4">
-                  <div className="flex items-center text-sm text-emerald-600 font-medium">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-                    Operational
+              </div>
+
+              <h3 className="mt-5 truncate text-lg font-semibold text-[var(--ink)]">
+                {site.site_name || site.website_url.replace(/^https?:\/\//, "")}
+              </h3>
+              <p className="mt-1 truncate text-xs text-[var(--ink-soft)]">{site.website_url}</p>
+
+              <div className="mt-5 space-y-2.5 text-sm text-[var(--ink-soft)]">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[var(--success)]" />
+                  Active monitor
+                </div>
+                {site.ssl_days !== null && site.ssl_days !== undefined ? (
+                  <SslFlag days={site.ssl_days} />
+                ) : (
+                  <div className="flex items-center gap-2 text-xs">
+                    <Lock className="h-3.5 w-3.5" />
+                    SSL info unavailable
                   </div>
+                )}
+              </div>
 
-                  {site.ssl_days !== null && site.ssl_days !== undefined && (
-                    <div className="flex items-center">
-                      <span 
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest border ${
-                          site.ssl_days > 30 
-                            ? "bg-green-50 text-green-700 border-green-200" 
-                            : site.ssl_days > 7 
-                            ? "bg-yellow-50 text-yellow-700 border-yellow-200" 
-                            : "bg-red-50 text-red-700 border-red-200"
-                        }`}
-                      >
-                        <Lock className="w-3 h-3" />
-                        SSL: {site.ssl_days} days left
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-5 pt-4 border-t border-zinc-100">
-                  <p className="text-xs text-zinc-500 group-hover:text-black transition-colors">
-                    Click to view details →
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="mt-5 border-t border-[var(--border)] pt-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#0f4c81]">
+                Open details
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
+  );
+}
+
+function DashboardMetric({
+  label,
+  value,
+  helper,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string;
+  helper: string;
+  tone?: "neutral" | "success" | "warning";
+}) {
+  const toneColor =
+    tone === "success"
+      ? "text-[var(--success)]"
+      : tone === "warning"
+      ? "text-[var(--warning)]"
+      : "text-[var(--ink)]";
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3.5">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-soft)]">
+        {label}
+      </p>
+      <p className={`mt-1 text-2xl font-bold ${toneColor}`}>{value}</p>
+      <p className="mt-1 text-xs text-[var(--ink-soft)]">{helper}</p>
+    </div>
+  );
+}
+
+function SslFlag({ days }: { days: number }) {
+  if (days <= 7) {
+    return (
+      <p className="inline-flex items-center gap-2 rounded-full bg-[#fdebea] px-2.5 py-1 text-xs font-semibold text-[#b22d24]">
+        <TriangleAlert className="h-3.5 w-3.5" />
+        SSL {days}d (urgent)
+      </p>
+    );
+  }
+
+  if (days <= 30) {
+    return (
+      <p className="inline-flex items-center gap-2 rounded-full bg-[#fff3df] px-2.5 py-1 text-xs font-semibold text-[#a36610]">
+        <Lock className="h-3.5 w-3.5" />
+        SSL {days}d (renew soon)
+      </p>
+    );
+  }
+
+  return (
+    <p className="inline-flex items-center gap-2 rounded-full bg-[#e5f7ed] px-2.5 py-1 text-xs font-semibold text-[#0d8a4a]">
+      <Lock className="h-3.5 w-3.5" />
+      SSL {days}d
+    </p>
   );
 }

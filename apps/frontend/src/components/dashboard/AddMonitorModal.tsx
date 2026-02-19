@@ -10,6 +10,25 @@ interface AddMonitorModalProps {
   onSuccess: () => void;
 }
 
+function getErrorMessage(error: unknown): string {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error
+  ) {
+    const response = (error as { response?: { data?: { error?: string } } }).response;
+    if (response?.data?.error) {
+      return response.data.error;
+    }
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Failed to add monitor";
+}
+
 export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,34 +50,33 @@ export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalP
       });
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to add monitor");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-300">
-
-        <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-100 bg-gradient-to-r from-zinc-50 to-white">
-          <h3 className="font-bold text-lg text-zinc-900">Add New Monitor</h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 transition-colors p-1 hover:bg-zinc-100 rounded-lg">
-            <X className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f2239]/45 p-4 backdrop-blur-sm">
+      <div className="surface-panel w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4">
+          <h3 className="text-lg font-semibold text-[var(--ink)]">Add New Monitor</h3>
+          <button onClick={onClose} className="rounded-lg p-1 text-[var(--ink-soft)] transition-colors hover:bg-[#f1f5fb] hover:text-[var(--ink)]">
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5 p-6">
           {error && (
-            <div className="text-sm text-red-700 bg-red-50 p-3.5 rounded-lg border border-red-200 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-2 rounded-xl border border-[#f0c5c1] bg-[#fdebea] p-3 text-sm text-[#b22d24]">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
           
           <div>
-            <label className="block text-sm font-semibold text-zinc-900 mb-2">
+            <label className="mb-2 block text-sm font-semibold text-[var(--ink)]">
               Website URL
             </label>
             <input
@@ -68,25 +86,25 @@ export function AddMonitorModal({ isOpen, onClose, onSuccess }: AddMonitorModalP
               placeholder="https://example.com"
               className="input-field"
             />
-            <p className="text-xs text-zinc-500 mt-2">
+            <p className="mt-2 text-xs text-[var(--ink-soft)]">
               Include the full URL with https:// or http://
             </p>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--ink-soft)] transition-colors hover:bg-[#eef3fa] hover:text-[var(--ink)]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 text-sm font-semibold bg-[#002147] text-white hover:bg-[#003366] rounded-lg transition-all flex items-center gap-2 disabled:opacity-50"
+              className="btn-primary disabled:opacity-60"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? 'Adding...' : 'Add Monitor'}
             </button>
           </div>

@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Uptime Monitoring System",
-  description: "Real-time uptime monitoring for your web services",
+  title: "Thapathali Campus Service Status",
+  description:
+    "Official uptime and service health dashboard for Tribhuvan University IOE Thapathali Campus digital systems.",
 };
 
 export default function RootLayout({
@@ -16,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -2,8 +2,17 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Globe, Settings, LogOut } from "lucide-react";
+import { useState } from "react";
+import {
+  Globe,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Settings,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CollegeBrand } from "@/components/brand/CollegeBrand";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -14,55 +23,85 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   function handleLogout() {
     localStorage.removeItem("uptimeToken");
     router.push("/login");
   }
 
+  function closeMobileMenu() {
+    setMobileOpen(false);
+  }
+
   return (
-    <aside className="w-64 bg-gradient-to-b from-[#002147] to-[#001530] text-white flex flex-col h-screen fixed left-0 top-0 border-r border-[#003366] z-50 shadow-xl">
-      <div className="h-16 flex items-center px-6 border-b border-[#003366]/50">
-        <div className="w-9 h-9 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 font-bold text-sm border border-white/20">
-            <span className="text-white font-bold">↗</span>
+    <>
+      <header className="fixed left-0 right-0 top-0 z-40 border-b border-[var(--border)] bg-white/90 backdrop-blur lg:hidden">
+        <div className="mx-auto flex h-[72px] w-full max-w-6xl items-center justify-between px-4">
+          <CollegeBrand compact href="/dashboard" />
+          <button
+            onClick={() => setMobileOpen((prev) => !prev)}
+            className="rounded-lg border border-[var(--border)] p-2 text-[var(--ink)]"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
-        <div className="leading-tight">
-          <span className="block font-bold text-sm tracking-tight text-white">Uptime</span>
-          <span className="block text-xs text-blue-200 font-medium">Monitor</span>
+      </header>
+
+      <div
+        className={cn(
+          "fixed inset-0 z-30 bg-[#0f2239]/45 backdrop-blur-sm transition-opacity lg:hidden",
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={closeMobileMenu}
+      />
+
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-[var(--border)] bg-white shadow-xl transition-transform duration-300 lg:w-72 lg:translate-x-0",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex min-h-[82px] items-center border-b border-[var(--border)] px-4">
+          <CollegeBrand href="/dashboard" subtitle="Uptime Console" />
         </div>
-      </div>
 
-      <nav className="flex-1 px-3 py-8 space-y-2">
-        <p className="px-4 text-xs font-semibold text-blue-200/60 uppercase tracking-widest mb-6">Navigation</p>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-white/15 text-white shadow-lg border border-white/20"
-                  : "text-blue-100 hover:text-white hover:bg-white/10 border border-transparent"
-              )}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+        <nav className="flex-1 space-y-1 px-3 py-6">
+          <p className="px-3 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-soft)]">
+            Navigation
+          </p>
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeMobileMenu}
+                className={cn(
+                  "mt-2 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                  isActive
+                    ? "border-[#c5d2ea] bg-[#eef2ff] text-[var(--brand)]"
+                    : "border-transparent text-[var(--ink-soft)] hover:border-[var(--border)] hover:bg-[#f7faff] hover:text-[var(--ink)]"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-      <div className="p-4 border-t border-[#003366]/50">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-blue-100 hover:text-white hover:bg-white/10 rounded-lg transition-all border border-transparent hover:border-white/20"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button>
-      </div>
-    </aside>
+        <div className="border-t border-[var(--border)] p-4">
+          <button
+            onClick={handleLogout}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--danger)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

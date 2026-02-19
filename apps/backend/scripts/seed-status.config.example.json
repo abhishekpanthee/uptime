@@ -1,0 +1,50 @@
+{
+  "ownerEmail": "admin@tcioe.edu.np",
+  "ownerName": "Status Demo Admin",
+  "ownerPassword": "ChangeMe123!",
+  "days": 30,
+  "checkIntervalMinutes": 60,
+  "resetExisting": true,
+  "sites": [
+    {
+      "url": "https://google.com",
+      "site_name": "Google",
+      "is_public": true,
+      "base_ping": 180,
+      "uptime": 99.8,
+      "ssl_days": 210
+    },
+    {
+      "url": "https://facebook.com",
+      "site_name": "Facebook",
+      "is_public": true,
+      "base_ping": 260,
+      "uptime": 99.6,
+      "ssl_days": 95
+    },
+    {
+      "url": "https://instagram.com",
+      "site_name": "Instagram",
+      "is_public": true,
+      "base_ping": 240,
+      "uptime": 99.4,
+      "ssl_days": 68
+    },
+    {
+      "url": "https://lms.tcioe.edu.np",
+      "site_name": "TCIOE LMS",
+      "is_public": true,
+      "base_ping": 320,
+      "uptime": 98.9,
+      "ssl_days": 34
+    },
+    {
+      "url": "https://routine.tcioe.edu.np",
+      "site_name": "Routine",
+      "is_public": true,
+      "base_ping": 210,
+      "uptime": 99.2,
+      "ssl_days": 14
+    }
+  ]
+}
