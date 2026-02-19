@@ -680,10 +680,7 @@ function ServiceRowWithHistory({
                             labelFormatter={(_label, payload) => {
                               const point = payload?.[0]?.payload as TimelineChartPoint | undefined;
                               if (!point?.checked_at) return point?.label || "Time";
-                              return new Date(point.checked_at).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              });
+                              return formatTime(point.checked_at);
                             }}
                             formatter={(value: unknown, _name, item) => {
                               const point = item?.payload as TimelineChartPoint | undefined;
@@ -1084,10 +1081,7 @@ function DayDetailModal({
                     labelFormatter={(_label, payload) => {
                       const point = payload?.[0]?.payload as TimelineChartPoint | undefined;
                       if (!point?.checked_at) return point?.label || "Time";
-                      return new Date(point.checked_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      });
+                      return formatTime(point.checked_at);
                     }}
                     formatter={(value: unknown, _name, item) => {
                       const point = item?.payload as TimelineChartPoint | undefined;
@@ -1164,7 +1158,17 @@ function formatDay(day: string) {
 
 function formatTime(timestamp: string) {
   if (!timestamp) return "--:--";
-  return new Date(timestamp).toLocaleTimeString([], {
+
+  let normalizedTimestamp = timestamp;
+  const hasTimeZone = /([zZ]|[+-]\d{2}:\d{2})$/.test(normalizedTimestamp);
+  if (!hasTimeZone) {
+    normalizedTimestamp += "Z";
+  }
+
+  const parsed = new Date(normalizedTimestamp);
+  if (Number.isNaN(parsed.getTime())) return "--:--";
+
+  return parsed.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
