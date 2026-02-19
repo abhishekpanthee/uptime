@@ -1,6 +1,6 @@
 # Uptime Tracker
 
-Website monitoring and availability tracking system.
+Website monitoring and availability tracking system. 
 
 ## Quick Start
 
