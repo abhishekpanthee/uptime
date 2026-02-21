@@ -189,8 +189,9 @@ function ServiceRowWithHistory({
 
   const [hourlyByDay, setHourlyByDay] = useState<Record<string, HourlyHistoryPoint[]>>({});
   const [timelineByDay, setTimelineByDay] = useState<Record<string, TimelinePoint[]>>({});
-  const [hourlyLoadingDay, setHourlyLoadingDay] = useState<string | null>(null);
+  const [loadingDays, setLoadingDays] = useState<Set<string>>(new Set());
   const [hourlyError, setHourlyError] = useState<string | null>(null);
+  const [hoverDay, setHoverDay] = useState<string | null>(null);
 
   const loadDailyHistory = useCallback(async () => {
     if (dailyHistory || dailyLoading) return;
@@ -220,8 +221,8 @@ function ServiceRowWithHistory({
 
   const loadHourlyHistory = useCallback(
     async (day: string) => {
-      if (!day || hourlyByDay[day] || hourlyLoadingDay === day) return;
-      setHourlyLoadingDay(day);
+      if (!day || hourlyByDay[day] || loadingDays.has(day)) return;
+      setLoadingDays((prev) => new Set(prev).add(day));
       setHourlyError(null);
 
       try {
@@ -236,10 +237,14 @@ function ServiceRowWithHistory({
         console.error("Failed to load hourly history", error);
         setHourlyError("Could not load hourly breakdown.");
       } finally {
-        setHourlyLoadingDay((prev) => (prev === day ? null : prev));
+        setLoadingDays((prev) => {
+          const next = new Set(prev);
+          next.delete(day);
+          return next;
+        });
       }
     },
-    [hourlyByDay, hourlyLoadingDay, site.url]
+    [hourlyByDay, loadingDays, site.url]
   );
 
   useEffect(() => {
@@ -258,6 +263,24 @@ function ServiceRowWithHistory({
     if (!expanded || !selectedDay) return;
     void loadHourlyHistory(selectedDay);
   }, [expanded, selectedDay, loadHourlyHistory]);
+
+  useEffect(() => {
+    if (!hoverDay) return;
+    void loadHourlyHistory(hoverDay);
+  }, [hoverDay, loadHourlyHistory]);
+
+  // Pre-fetch all days with data so the hover tooltip is instant
+  useEffect(() => {
+    if (!dailyHistory) return;
+    const daysWithData = dailyHistory
+      .filter((d) => (d.checks ?? 0) > 0)
+      .map((d) => d.date);
+    for (const day of daysWithData) {
+      void loadHourlyHistory(day);
+    }
+    // loadHourlyHistory is intentionally excluded to run only when dailyHistory changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dailyHistory]);
 
   const dailyChartData = useMemo(
     () =>
@@ -446,7 +469,7 @@ function ServiceRowWithHistory({
     };
   }, [modalChartData]);
 
-  const modalLoading = detailDay ? hourlyLoadingDay === detailDay : false;
+  const modalLoading = detailDay ? loadingDays.has(detailDay) : false;
 
   const openHistoryPanel = () => {
     setExpanded(true);
@@ -643,7 +666,7 @@ function ServiceRowWithHistory({
                     </div>
                   </div>
 
-                  {hourlyLoadingDay === selectedDay ? (
+                  {selectedDay && loadingDays.has(selectedDay) ? (
                     <div className="flex h-[165px] items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white text-sm text-[var(--ink-soft)]">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Loading 24-hour chart...
@@ -764,6 +787,12 @@ function ServiceRowWithHistory({
                             openDayDetail(payload.date);
                           }
                         }}
+                        onMouseMove={(state: any) => {
+                          const payload = state?.activePayload?.[0]?.payload as DailyTrendPoint | undefined;
+                          const day = payload?.date && payload.has_data ? payload.date : null;
+                          setHoverDay((prev) => (prev === day ? prev : day));
+                        }}
+                        onMouseLeave={() => setHoverDay(null)}
                       >
                         <CartesianGrid strokeDasharray="4 4" stroke="#dbe5f2" vertical={false} />
                         <XAxis
@@ -783,34 +812,15 @@ function ServiceRowWithHistory({
                         />
                         <Tooltip
                           cursor={{ stroke: "#b9c7dc", strokeDasharray: "4 4" }}
-                          contentStyle={{
-                            borderRadius: "10px",
-                            border: "1px solid #d8e1ef",
-                            boxShadow: "0 10px 22px -20px rgba(26,54,93,0.55)",
-                            fontSize: "12px",
-                          }}
-                          labelFormatter={(_label, payload) => {
-                            const item = payload?.[0]?.payload as DailyTrendPoint | undefined;
-                            return item?.date ? formatDayLong(item.date) : "Day";
-                          }}
-                          formatter={(value: unknown, _name, item) => {
-                            const point = item?.payload as DailyTrendPoint | undefined;
-                            if (!point?.has_data && point?.is_estimated) {
-                              return [
-                                typeof value === "number" ? `${Math.round(value)} ms` : "No latency",
-                                "Estimated trend (between recorded days)",
-                              ];
-                            }
-                            if (!point?.has_data) {
-                              return ["No checks", "No data collected for this day"];
-                            }
-                            const latency = typeof value === "number" ? `${Math.round(value)} ms` : "No latency";
-                            const uptime =
-                              point?.uptime_percentage !== null && point?.uptime_percentage !== undefined
-                                ? `${point.uptime_percentage}% uptime`
-                                : "No uptime data";
-                            return [latency, `${uptime} • ${point?.checks ?? 0} checks`];
-                          }}
+                          content={(props: any) => (
+                            <ThirtyDayHoverTooltip
+                              active={props.active}
+                              payload={props.payload}
+                              hourlyByDay={hourlyByDay}
+                              timelineByDay={timelineByDay}
+                              loadingDays={loadingDays}
+                            />
+                          )}
                         />
                         <Line
                           type="monotone"
@@ -1123,6 +1133,146 @@ function DayDetailModal({
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function MiniSparkline({ data }: { data: { label: string; ping: number | null }[] }) {
+  const W = 196;
+  const H = 64;
+  const pad = 4;
+
+  // Use only points that have actual data, evenly distributed across full width
+  const pts = data
+    .filter((d): d is { label: string; ping: number } => d.ping !== null);
+
+  if (pts.length < 2) {
+    return (
+      <div className="flex h-[64px] items-center justify-center text-[10px] text-[var(--ink-soft)]">
+        Not enough data
+      </div>
+    );
+  }
+
+  const ys = pts.map((p) => p.ping);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const rangeY = maxY - minY || 1;
+  const n = pts.length - 1;
+
+  const toX = (i: number) => pad + (i / n) * (W - pad * 2);
+  const toY = (v: number) => pad + (1 - (v - minY) / rangeY) * (H - pad * 2 - 2);
+
+  const lineD = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${toX(i).toFixed(1)} ${toY(p.ping).toFixed(1)}`).join(" ");
+  const areaD = `M ${toX(0).toFixed(1)} ${(H - pad).toFixed(1)} ` +
+    pts.map((p, i) => `L ${toX(i).toFixed(1)} ${toY(p.ping).toFixed(1)}`).join(" ") +
+    ` L ${toX(n).toFixed(1)} ${(H - pad).toFixed(1)} Z`;
+
+  const gradId = `sg-${Math.round(minY)}-${Math.round(maxY)}-${pts.length}`;
+
+  return (
+    <svg width={W} height={H} style={{ display: "block" }}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2b57b8" stopOpacity={0.28} />
+          <stop offset="100%" stopColor="#2b57b8" stopOpacity={0.02} />
+        </linearGradient>
+      </defs>
+      <path d={areaD} fill={`url(#${gradId})`} stroke="none" />
+      <path d={lineD} fill="none" stroke="#2b57b8" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ThirtyDayHoverTooltip({
+  active,
+  payload,
+  hourlyByDay,
+  timelineByDay,
+  loadingDays,
+}: {
+  active?: boolean;
+  payload?: any[];
+  hourlyByDay: Record<string, HourlyHistoryPoint[]>;
+  timelineByDay: Record<string, TimelinePoint[]>;
+  loadingDays: Set<string>;
+}) {
+  // Hooks must come before any conditional return
+  const point = payload?.[0]?.payload as DailyTrendPoint | undefined;
+  const day = point?.date ?? "";
+  const timeline = timelineByDay[day] || [];
+  const hourly = hourlyByDay[day] || [];
+
+  const chartData = useMemo<{ label: string; ping: number | null }[]>(() => {
+    if (!day) return [];
+    if (timeline.length > 0) {
+      const buckets: Record<number, number[]> = {};
+      for (const p of timeline) {
+        if (p.ping === null || p.ping === undefined) continue;
+        const ts = new Date(p.checked_at.endsWith("Z") ? p.checked_at : p.checked_at + "Z");
+        const h = ts.getUTCHours();
+        if (!buckets[h]) buckets[h] = [];
+        buckets[h].push(p.ping);
+      }
+      return Array.from({ length: 24 }, (_, h) => {
+        const vals = buckets[h];
+        const avg =
+          vals && vals.length > 0
+            ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
+            : null;
+        return { label: `${String(h).padStart(2, "0")}:00`, ping: avg };
+      });
+    }
+    return hourly.map((p) => ({ label: p.label, ping: p.avg_ping }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day, timeline.length, hourly.length]);
+
+  if (!active || !payload || payload.length === 0) return null;
+  if (!point?.date || !point.has_data) return null;
+
+  const isLoading = loadingDays.has(day) && !hourlyByDay[day];
+
+  const uptimeBadgeColor =
+    point.uptime_percentage === 100
+      ? "#86efac"
+      : typeof point.uptime_percentage === "number" && point.uptime_percentage >= 99
+      ? "#fcd34d"
+      : "#fca5a5";
+
+  return (
+    <div
+      style={{ width: 220, pointerEvents: "none" }}
+      className="rounded-2xl border border-[#dde8f5] bg-white shadow-[0_16px_40px_-16px_rgba(11,40,75,0.45)]"
+    >
+      <div className="rounded-t-2xl bg-gradient-to-br from-[#1f3d8f] to-[#1b2e6a] px-3 py-2.5">
+        <p className="text-[11px] font-bold tracking-wide text-white">{formatDayLong(day)}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+          {point.uptime_percentage !== null && point.uptime_percentage !== undefined && (
+            <span className="text-[10px] font-semibold" style={{ color: uptimeBadgeColor }}>
+              {point.uptime_percentage}% up
+            </span>
+          )}
+          <span className="text-[10px] text-[#a8c0e8]">{point.checks ?? 0} checks</span>
+          {typeof point.avg_ping === "number" && (
+            <span className="text-[10px] text-[#a8c0e8]">{point.avg_ping} ms avg</span>
+          )}
+        </div>
+      </div>
+
+      <div className="px-2 pb-2 pt-2">
+        {isLoading ? (
+          <div className="flex h-[72px] items-center justify-center gap-1.5 text-[11px] text-[var(--ink-soft)]">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Loading...
+          </div>
+        ) : chartData.length > 0 ? (
+          <MiniSparkline data={chartData} />
+        ) : (
+          <div className="flex h-[72px] items-center justify-center text-[11px] text-[var(--ink-soft)]">
+            No data
+          </div>
+        )}
       </div>
     </div>
   );
