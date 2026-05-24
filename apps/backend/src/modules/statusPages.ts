@@ -146,11 +146,11 @@ export const statusPages = new Elysia({ prefix: "/status-pages" })
     }),
   })
 
-  .delete("/:pageId/components/:id", async ({ headers, jwt, params, set }) => {
+  .delete("/:id/components/:componentId", async ({ headers, jwt, params, set }) => {
     const userId = await getUserId(headers, jwt);
     if (!userId) { set.status = 401; return { error: "Unauthorized" }; }
 
-    const { error } = await db.from("status_page_components").delete().eq("id", params.id);
+    const { error } = await db.from("status_page_components").delete().eq("id", params.componentId);
     if (error) { set.status = 500; return { error: error.message }; }
     return { message: "Component removed" };
   });
