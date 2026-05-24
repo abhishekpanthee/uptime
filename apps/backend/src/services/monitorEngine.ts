@@ -429,7 +429,8 @@ export async function startMonitorEngine(): Promise<void> {
 
   const { data: sites, error } = await db.from("ownership").select("*");
   if (error) {
-    console.error("[Monitor] Failed to load sites:", error.message);
+    console.error("[Monitor] Failed to load sites:", error.message, "- retrying in 10s");
+    setTimeout(() => startMonitorEngine(), 10000);
     return;
   }
 
