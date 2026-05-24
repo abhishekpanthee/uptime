@@ -13,9 +13,10 @@ ENV NODE_ENV=production
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/backend/src ./src
+COPY apps/backend/scripts ./scripts
 COPY apps/backend/package.json ./
 COPY apps/backend/tsconfig.json ./
 
 EXPOSE 8000
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["sh", "-c", "bun run scripts/migrate.ts && bun run src/index.ts"]
