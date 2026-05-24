@@ -1,5 +1,3 @@
-import { getRedis, isRedisConnected } from "./redis";
-
 interface Job {
   id: string;
   type: string;
@@ -13,8 +11,7 @@ interface Job {
 type JobHandler = (data: unknown) => Promise<void>;
 
 const handlers = new Map<string, JobHandler>();
-const QUEUE_KEY = "uptime:job_queue";
-const FAILED_KEY = "uptime:job_failed";
+const queue: Job[] = [];
 let processing = false;
 
 export function registerJobHandler(type: string, handler: JobHandler): void {
@@ -32,14 +29,7 @@ export async function enqueueJob(type: string, data: unknown, maxAttempts = 3): 
     createdAt: Date.now(),
   };
 
-  const redis = getRedis();
-  if (redis && isRedisConnected()) {
-    await redis.rpush(QUEUE_KEY, JSON.stringify(job));
-  } else {
-    // Fallback: process immediately in-memory
-    processJob(job);
-  }
-
+  queue.push(job);
   return id;
 }
 
@@ -57,22 +47,11 @@ async function processJob(job: Job): Promise<void> {
     console.error(`[Queue] Job ${job.id} (${job.type}) failed:`, err.message);
 
     if (job.attempts < job.maxAttempts) {
-      // Exponential backoff: 5s, 25s, 125s...
       const delay = Math.pow(5, job.attempts) * 1000;
       job.nextRetryAt = Date.now() + delay;
-
-      const redis = getRedis();
-      if (redis && isRedisConnected()) {
-        await redis.rpush(QUEUE_KEY, JSON.stringify(job));
-      } else {
-        setTimeout(() => processJob(job), delay);
-      }
+      queue.push(job);
     } else {
       console.error(`[Queue] Job ${job.id} (${job.type}) exhausted retries`);
-      const redis = getRedis();
-      if (redis && isRedisConnected()) {
-        await redis.rpush(FAILED_KEY, JSON.stringify(job));
-      }
     }
   }
 }
@@ -83,17 +62,11 @@ export function startQueueProcessor(intervalMs = 1000): void {
     processing = true;
 
     try {
-      const redis = getRedis();
-      if (!redis || !isRedisConnected()) return;
+      const job = queue.shift();
+      if (!job) return;
 
-      const raw = await redis.lpop(QUEUE_KEY);
-      if (!raw) return;
-
-      const job: Job = JSON.parse(raw);
-
-      // Check if job needs to wait before retry
       if (job.nextRetryAt && Date.now() < job.nextRetryAt) {
-        await redis.rpush(QUEUE_KEY, raw);
+        queue.push(job);
         return;
       }
 

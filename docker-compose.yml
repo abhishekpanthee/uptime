@@ -16,18 +16,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./apps/backend
@@ -38,15 +26,10 @@ services:
       - PORT=8000
       - JWT_SECRET=${JWT_SECRET:-dev-secret-change-me-in-production}
       - DATABASE_URL=postgres://uptime:uptime_dev_password@postgres:5432/uptime
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
-      - SUPABASE_PUBLISHABLE_KEY=${SUPABASE_PUBLISHABLE_KEY}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
       - CORS_ORIGINS=http://localhost:3000
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     restart: unless-stopped
 
@@ -64,4 +47,3 @@ services:
 
 volumes:
   pgdata:
-  redisdata:

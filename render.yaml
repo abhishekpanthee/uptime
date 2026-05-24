@@ -29,11 +29,6 @@ services:
         value: https://uptime-frontend.onrender.com
       - key: APP_NAME
         value: Uptime Monitor
-      - key: REDIS_URL
-        fromService:
-          name: uptime-redis
-          type: redis
-          property: connectionString
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT
@@ -67,9 +62,3 @@ services:
     databaseName: uptime
     user: uptime
 
-  # -- Redis --
-  - type: redis
-    name: uptime-redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []

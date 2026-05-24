@@ -47,7 +47,6 @@ import { aggregationService } from "./services/aggregation";
 import { startMonitorEngine, stopMonitorEngine } from "./services/monitorEngine";
 import { websocketService, broadcastEvent } from "./services/websocket";
 import { startQueueProcessor } from "./services/queue";
-import { closeRedis } from "./services/redis";
 
 // Services - Month 11
 import { startAnomalyDetection, stopAnomalyDetection } from "./services/anomaly";
@@ -141,7 +140,6 @@ const shutdown = async (signal: string) => {
   console.log(`\n[${signal}] Shutting down gracefully...`);
   stopMonitorEngine();
   stopAnomalyDetection();
-  await closeRedis();
   await closePgPool();
   app.stop();
   console.log("Server stopped. Exiting.");
