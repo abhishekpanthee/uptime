@@ -22,9 +22,9 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: CORS_ORIGINS
-        value: https://uptime-frontend.onrender.com
+        value: https://uptime-frontend-rbfo.onrender.com
       - key: APP_URL
-        value: https://uptime-frontend.onrender.com
+        value: https://uptime-frontend-rbfo.onrender.com
       - key: APP_NAME
         value: Uptime Monitor
       - key: SMTP_HOST
@@ -51,6 +51,6 @@ services:
     plan: free
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://uptime-api.onrender.com/api
+        value: https://uptime-api-wj2c.onrender.com/api
 
 
