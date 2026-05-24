@@ -51,10 +51,6 @@ import { startQueueProcessor } from "./services/queue";
 // Services - Month 11
 import { startAnomalyDetection, stopAnomalyDetection } from "./services/anomaly";
 
-const allowedOrigins = (Bun.env.CORS_ORIGINS || "http://localhost:3000")
-  .split(",")
-  .map((o) => o.trim());
-
 const port = Number(Bun.env.PORT) || 8000;
 
 const app = new Elysia()
@@ -63,7 +59,7 @@ const app = new Elysia()
   .use(securityHeaders)
   .use(
     cors({
-      origin: allowedOrigins,
+      origin: true,
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
     })
