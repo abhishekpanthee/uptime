@@ -3,9 +3,8 @@ WORKDIR /app
 
 # Install dependencies
 FROM base AS deps
-COPY package.json ./
-COPY apps/backend/package.json ./apps/backend/
-RUN cd apps/backend && bun install --production
+COPY apps/backend/package.json ./
+RUN bun install --production
 
 # Production
 FROM base AS runner
