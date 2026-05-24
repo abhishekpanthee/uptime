@@ -5,7 +5,8 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json bun.lock ./
 COPY apps/backend/package.json ./apps/backend/
-RUN bun install --filter=backend --production --no-save
+ENV BUN_FROZEN_LOCKFILE=0
+RUN bun install --production
 
 # Production
 FROM base AS runner
