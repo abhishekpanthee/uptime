@@ -9,13 +9,13 @@
     "build": "bun build src/index.ts --outdir ./dist --target bun",
     "test": "bun test",
     "seed:status": "bun run scripts/seed-status.ts",
-    "seed:status:example": "bun run scripts/seed-status.ts --config scripts/seed-status.config.example.json --reset"
+    "seed:status:example": "bun run scripts/seed-status.ts --config scripts/seed-status.config.example.json --reset",
+    "migrate": "bun run scripts/migrate.ts"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/cron": "^1.4.1",
     "@elysiajs/jwt": "^1.4.0",
-    "@supabase/supabase-js": "^2.91.0",
     "drizzle-orm": "^0.45.1",
     "elysia": "^1.4.22",
     "ioredis": "^5.6.1",

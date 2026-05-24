@@ -1,6 +1,9 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 
+// Database
+import { closePgPool } from "./db";
+
 // Middleware
 import { rateLimiter } from "./middleware/rateLimit";
 import { securityHeaders, requestId } from "./middleware/security";
@@ -139,6 +142,7 @@ const shutdown = async (signal: string) => {
   stopMonitorEngine();
   stopAnomalyDetection();
   await closeRedis();
+  await closePgPool();
   app.stop();
   console.log("Server stopped. Exiting.");
   process.exit(0);
