@@ -1,18 +1,16 @@
 import { Elysia, t } from 'elysia';
 import { db } from '../db';
-import { jwt } from '@elysiajs/jwt';
+import { jwtConfig, extractBearerToken } from '../middleware/auth';
 
-// Helper to check the user's token
-const getUserId = async (headers: any, jwt: any) => {
-    const auth = headers['authorization'];
-    const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
+const getUserId = async (headers: Record<string, string | undefined>, jwt: any) => {
+    const token = extractBearerToken(headers);
     if (!token) return null;
     const profile = await jwt.verify(token);
     return profile ? profile.id : null;
 };
 
 export const websites = new Elysia({ prefix: '/websites' })
-    .use(jwt({ name: 'jwt', secret: Bun.env.JWT_SECRET! }))
+    .use(jwtConfig)
 
     // GET /websites - List all sites
     .get('/', async ({ headers, jwt, set }) => {
@@ -59,8 +57,8 @@ export const websites = new Elysia({ prefix: '/websites' })
         return { message: "Website added" };
     }, {
         body: t.Object({ 
-            url: t.String(), 
-            site_name: t.Optional(t.String()),
+            url: t.String({ format: 'uri', minLength: 8, maxLength: 254 }), 
+            site_name: t.Optional(t.String({ maxLength: 100 })),
             is_public: t.Optional(t.Boolean()) 
         })
     })

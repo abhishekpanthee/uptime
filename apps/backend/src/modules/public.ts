@@ -8,6 +8,28 @@ const NEPAL_OFFSET_MINUTES = 5 * 60 + 45;
 const NEPAL_OFFSET_MS = NEPAL_OFFSET_MINUTES * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+function isMissingSslDaysColumnError(error: unknown) {
+  const message = String((error as { message?: string } | null)?.message || "").toLowerCase();
+  return message.includes("ssl_days") && message.includes("column");
+}
+
+async function selectPublicSitesWithOptionalSsl() {
+  const withSsl = await db
+    .from("ownership")
+    .select("website_url, ssl_days")
+    .eq("is_public", true);
+
+  if (!withSsl.error) {
+    return withSsl;
+  }
+
+  if (!isMissingSslDaysColumnError(withSsl.error)) {
+    return withSsl;
+  }
+
+  return db.from("ownership").select("website_url").eq("is_public", true);
+}
+
 function clampInt(value: string | number | undefined, min: number, max: number, fallback: number) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
@@ -99,10 +121,7 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
   .get("/status", async ({ set }) => {
     try {
       // 1. Fetch all public websites
-      const { data: sites, error } = await db
-        .from("ownership")
-        .select("website_url, ssl_days")
-        .eq("is_public", true);
+      const { data: sites, error } = await selectPublicSitesWithOptionalSsl();
 
       if (error) throw error;
       if (!sites) return [];
@@ -129,10 +148,17 @@ export const publicRoutes = new Elysia({ prefix: "/public" })
 
           const checks24h = recentChecks?.length || 0;
           const up24h = recentChecks?.filter((item) => item.status === 200).length || 0;
+          const rawSslDays = (site as { ssl_days?: unknown }).ssl_days;
+          const sslDays =
+            rawSslDays === null || rawSslDays === undefined
+              ? null
+              : Number.isFinite(Number(rawSslDays))
+                ? Number(rawSslDays)
+                : null;
 
           return {
             url: site.website_url,
-            ssl_days: site.ssl_days,
+            ssl_days: sslDays,
             status: latestPing?.status || 0,
             ping: normalizePing(latestPing?.status, latestPing?.ping5),
             last_checked: latestPing?.checked_at || null,
