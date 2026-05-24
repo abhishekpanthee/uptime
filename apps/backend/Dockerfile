@@ -3,10 +3,9 @@ WORKDIR /app
 
 # Install dependencies
 FROM base AS deps
-COPY package.json bun.lock ./
+COPY package.json ./
 COPY apps/backend/package.json ./apps/backend/
-ENV BUN_FROZEN_LOCKFILE=0
-RUN bun install --production
+RUN cd apps/backend && bun install --production
 
 # Production
 FROM base AS runner
