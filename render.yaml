@@ -1,0 +1,70 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+# Deploy: connect repo on Render Dashboard > New Blueprint Instance
+
+services:
+  # -- Backend API --
+  - type: web
+    name: uptime-api
+    runtime: docker
+    repo: https://github.com/abhishekpanthee/uptime.git
+    branch: main
+    dockerfilePath: ./apps/backend/Dockerfile
+    dockerContext: ./apps/backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://uptime-frontend.onrender.com
+      - key: APP_URL
+        value: https://uptime-frontend.onrender.com
+      - key: APP_NAME
+        value: Uptime Monitor
+      - key: REDIS_URL
+        fromService:
+          name: uptime-redis
+          type: redis
+          property: connectionString
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+
+  # -- Frontend --
+  - type: web
+    name: uptime-frontend
+    runtime: docker
+    repo: https://github.com/abhishekpanthee/uptime.git
+    branch: main
+    dockerfilePath: ./apps/frontend/Dockerfile
+    dockerContext: ./apps/frontend
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://uptime-api.onrender.com/api
+
+  # -- Redis --
+  - type: redis
+    name: uptime-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
