@@ -1,20 +1,17 @@
 FROM node:22-alpine AS base
 WORKDIR /app
 
-# Install bun for building
-RUN npm install -g bun
-
 # Install dependencies
 FROM base AS deps
-COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile
+COPY apps/frontend/package.json ./
+RUN npm install
 
 # Build
 FROM base AS build
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY apps/frontend/ ./
 RUN npm run build
 
 # Production

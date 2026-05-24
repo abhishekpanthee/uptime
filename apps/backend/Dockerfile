@@ -3,24 +3,19 @@ WORKDIR /app
 
 # Install dependencies
 FROM base AS deps
-COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile --production
-
-# Build
-FROM base AS build
-COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile
-COPY . .
+COPY package.json bun.lock ./
+COPY apps/backend/package.json ./apps/backend/
+RUN cd apps/backend && bun install --production
 
 # Production
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/src ./src
-COPY --from=build /app/package.json ./
-COPY --from=build /app/tsconfig.json ./
+COPY --from=deps /app/apps/backend/node_modules ./node_modules
+COPY apps/backend/src ./src
+COPY apps/backend/package.json ./
+COPY apps/backend/tsconfig.json ./
 
 EXPOSE 8000
 

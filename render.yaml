@@ -9,7 +9,7 @@ services:
     repo: https://github.com/abhishekpanthee/uptime.git
     branch: main
     dockerfilePath: ./apps/backend/Dockerfile
-    dockerContext: ./apps/backend
+    dockerContext: .
     plan: free
     healthCheckPath: /health
     envVars:
@@ -47,7 +47,7 @@ services:
     repo: https://github.com/abhishekpanthee/uptime.git
     branch: main
     dockerfilePath: ./apps/frontend/Dockerfile
-    dockerContext: ./apps/frontend
+    dockerContext: .
     plan: free
     envVars:
       - key: NEXT_PUBLIC_API_URL
